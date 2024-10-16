@@ -64,6 +64,12 @@ a = [1,2,3,4];
 b = a;
 a.push("Hello");
 console.log(b); //=> [ 1, 2, 3, 4, "hello" ]
+
+// Declare multiple variables on one line
+let var1 = 1, var2 = 2, var3 = "Hello";
+
+// Same works with constants
+const con1 = 1, con2 = 2;
 ```
 #### Comparison operators
 ```js
