@@ -105,6 +105,21 @@ ssh -i $HOME/.ssh/aws/user14 sentry@215.112.101.000
 scp -i $HOME/.ssh/aws/roger $HOME/docs/file.txt user@111.111.111.111:/home/file.txt
 ```
 ---
+#### Add keys to ssh-agent
+```bash
+# Fisrt run the agent
+eval $(ssh-agent -s) # => pid 1248
+
+# Add private key
+ssh-add mykey
+
+# List all added keys
+ssh-add -l
+
+# Delete all added keys
+ssh-add -D
+```
+---
 #### Modify `$PATH` variable
 ```bash
 export PATH=$PATH:/my/custom/path

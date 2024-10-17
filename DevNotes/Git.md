@@ -182,3 +182,57 @@ git rebase --interactive --root
 git add --all -- ':!/src/exclude1.txt' ':!src/exclude2.txt'
 ```
 ---
+#### Add ssh keys to Gitlab and Github on WSL
+```bash
+# Run PowerShell in admin mode (via GUI)
+
+# Generate ssh keys both for gitlab and github 
+ssh-keygen.exe -t rsa -f C:\Users\user\.ssh\gitlab -C user@pc
+ssh-keygen.exe -t rsa -f C:\Users\user\.ssh\github -C user@pc
+
+# Check private keys' properties and ensure that only system and user have access to this file. This is done via GUI. Be sure to deactivate inheritance.
+
+# Check if the ssh-agent is active on PowerShell
+Get-Service ssh-agent
+# ---------------------||--------------------------
+#	  				   \/
+Status   Name               DisplayName
+------   ----               -----------
+Running  ssh-agent          OpenSSH Authentication Agent
+
+# If the status is not running try following commands
+Set-Service ssh-agent -StartupType Automatic
+Start-Service ssh-agent
+
+# Add private keys to powershell ssh-client
+ssh-add C:\Users\user\.ssh\gitlab
+ssh-add C:\Users\user\.ssh\github
+
+# Create config file in C:\Users\user\.ssh directory with contents below:
+Host gitlab
+    HostName gitlab.com
+    PreferredAuthentications publickey # this may not be strictly neccessary
+    IdentityFile c:/Users/smira/.ssh/gitlab
+
+Host github
+    HostName github.com
+    IdentityFile /mnt/c/Users/smira/.ssh/github
+
+# Copy the contents of your local windows `.ssh` folder to WSL
+sudo cp -r /mnt/c/Users/user/.ssh/* ~/.ssh
+
+# Add private keys to WSL ssh-agent
+eval $(ssh-agent -s) # start the agent
+ssh-add ~/.ssh/gitlab
+ssh-add ~/.ssh/github
+
+# Run to check gitlab and github connections
+sudo ssh -Tv git@gitlab.com
+sudo ssh -Tv git@github.com
+
+# Don't forget to set user name and email local to each project
+git config --local user.name = name
+git config --local user.email = email@email.com
+```
+---
+

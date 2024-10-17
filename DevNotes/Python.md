@@ -1,6 +1,26 @@
 ---
 Created: 2024-07-23T18:09
 ---
+#### Install `Python` on `Ubuntu`
+```bash
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa # repository that held the most recent compiled python bundles 
+sudo apt update
+sudo apt install python3.13
+```
+---
+#### Install `pip` on `Ubuntu`
+```bash
+sudo apt update
+sudo apt install python3-pip
+```
+---
+#### Install Python `venv` on `Ubuntu`
+```bash
+sudo apt install python3-venv
+```
+---
 #### Create virtual environment with custom prompt in shell
 ```bash
 python3 -m venv venv --prompt {your_prompt}
