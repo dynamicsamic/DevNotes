@@ -39,6 +39,7 @@ mysql> FLUSH PRIVILEGES;
 $ mysql -u user_name -D db_name -p
 
 -- Show databases;
+<<<<<<< HEAD
 SHOW DATABASES; -- show all databases
 SHOW DATABASES LIKE 'patter'; -- show specific databases
 
@@ -46,6 +47,45 @@ SHOW DATABASES LIKE 'patter'; -- show specific databases
 USE <db_name>;
 
 
+=======
+>>> SHOW DATABASES; -- show all databases
+>>> SHOW DATABASES LIKE 'patter'; -- show specific databases
+
+-- Connect to database
+>>> USE <db_name>;
+
+-- Show all tables
+>>> SHOW TABLES;
++----------------+
+| Tables_in_test |
++----------------+
+| orders         |
+| user           |
++----------------+
+2 rows in set (0.01 sec)
+
+-- Show table schema
+DESCRIBE <table_name>; -- also possible EXPLAIN <table_name>
++-------+-------------+------+-----+---------+-------------------+
+| Field | Type        | Null | Key | Default | Extra             |
++-------+-------------+------+-----+---------+-------------------+
+| id    | int         | NO   | PRI | NULL    | auto_increment    |
+| name  | varchar(50) | NO   | UNI | NULL    |                   |
+| date  | timestamp   | YES  |     | now()   | DEFAULT_GENERATED |
++-------+-------------+------+-----+---------+-------------------+
+
+-- Show create statement that was used to crete the table 
+SHOW CREATE TABLE <table_name>;
+
+| Table  | Create Table                                                            orders | CREATE TABLE `orders` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_sum` int NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci 
+>>>>>>> win
 ```
 ---
 #### Use MySQL from Python with `mysql-connector-python`

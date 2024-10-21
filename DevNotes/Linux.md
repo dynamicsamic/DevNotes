@@ -180,4 +180,68 @@ sudo service apache2 stop
 
 # Start nginx service
 sudo service nginx start
+<<<<<<< HEAD
 ```
+=======
+```
+---
+#### File permissions
+```bash
+# First view file permissions
+>>> ls /path/to/file.py
+... -rwxr-xr-x 1 tr_sup tr_sup 750 Oct 17 14:40 edu/python/file.py
+# first `-` dash means - this is a regular file. Also possible:
+- `d` (directory)
+- `l` (symlink)
+- `s` (socket)
+- `c` (character device) # don't know what that is
+- `p` (named pipe) # don't know what that is
+- `b` (block device) # don't know what that is
+- `D` (door) # don't know what that is
+
+# After that goes 3 groups each containing 3 chars r, w, x or -, which mean:
+- `r` read permission
+- `w` write permission
+- `x` executable permission
+- `-` permission not set
+
+# The groups they divided into:
+- `rwx` # the first group represents the owner's persmissions. In this case onwer of the file can read, write and execute.
+- `r-x` # the second group represents the owner's group permissions. In this case all members of the group can read and execute the file but not write to it.
+- `r-x` # the third group represents others' permissions. In this case all other users can read and execute the file but not write to it.
+
+# Also permission characters can be represented as digit-values.
+- `r` = 4
+- `w` = 2
+- `x` = 1
+
+# Digits allow to fold a group of three characters into single digit, which forms by summation of each character value. In this case `rwx` = 4 + 2 + 1 = 7, `r-x` = 4 + 1 = 5, and rwxr-xr-x = 755
+
+# After permissions goes number of hard links to a file, in thic case it = 1.
+# After that goes the owner's name.
+# Then the group's name.
+# After that we see the file or directory size in bytes, here it equals to 750.
+# Then goes the last modification time.
+# And the file name concludes the output.
+```
+---
+#### View file properties
+```bash
+>>> stat /path/to/file.py
+#--------------------------------||-----------------------------------------------#
+                                 \/
+File:   /path/to/file.py
+Size:   750             Blocks: 8          IO Block: 4096   regular file
+Device: 8,32            Inode: 82144       Links: 1
+Access: (0755/-rwxr-xr-x)  Uid: ( 1000/  tr_sup)   Gid: ( 1000/  tr_sup)
+Access: 2024-10-17 14:43:09.574020251 +0300
+Modify: 2024-10-17 14:40:03.509616783 +0300
+Change: 2024-10-17 14:43:05.452232959 +0300
+Birth:  2024-10-17 12:49:07.129337385 +0300 
+
+# Less verbose output possible with ls
+>>> ls /path/to/file.py
+... -rwxr-xr-x 1 tr_sup tr_sup 750 Oct 17 14:40 edu/python/file.py
+```
+---
+>>>>>>> win
