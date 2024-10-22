@@ -38,16 +38,9 @@ mysql> FLUSH PRIVILEGES;
 -- Run mysql CLI
 $ mysql -u user_name -D db_name -p
 
--- Show databases;
-<<<<<<< HEAD
-SHOW DATABASES; -- show all databases
-SHOW DATABASES LIKE 'patter'; -- show specific databases
-
 -- Connect to database
 USE <db_name>;
 
-
-=======
 >>> SHOW DATABASES; -- show all databases
 >>> SHOW DATABASES LIKE 'patter'; -- show specific databases
 
@@ -85,7 +78,6 @@ SHOW CREATE TABLE <table_name>;
   KEY `user_id` (`user_id`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci 
->>>>>>> win
 ```
 ---
 #### Use MySQL from Python with `mysql-connector-python`

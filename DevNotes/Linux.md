@@ -107,7 +107,7 @@ scp -i $HOME/.ssh/aws/roger $HOME/docs/file.txt user@111.111.111.111:/home/file.
 ---
 #### Add keys to ssh-agent
 ```bash
-# Fisrt run the agent
+# Fisrt run the agent and set global variables
 eval $(ssh-agent -s) # => pid 1248
 
 # Add private key

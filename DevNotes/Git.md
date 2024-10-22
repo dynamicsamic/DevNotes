@@ -235,4 +235,7 @@ git config --local user.name = name
 git config --local user.email = email@email.com
 ```
 ---
+<<<<<<< HEAD
 
+=======
+>>>>>>> win

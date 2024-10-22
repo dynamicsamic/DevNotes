@@ -28,6 +28,16 @@ source venv/bin/activate
 (your_prompt)$ ...
 ```
 ---
+#### Create unexisting file while write or append
+```python
+# Add the `+` plus sign to the mode argument
+with open('file.txt', 'w+') as f:
+	...
+
+with open('file.txt', 'a+') as f:
+	...
+```
+---
 #### `__aexit__` method signature for async context managers
 ```python
 from typing import Optional, Type
