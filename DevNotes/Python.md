@@ -38,6 +38,16 @@ with open('file.txt', 'a+') as f:
 	...
 ```
 ---
+#### Case insensitive regexp match
+```python
+import re
+
+re.search('test', 'Test', re.IGNORECASE)
+
+# Also possible to use with re.compile
+pat = re.compile('test', re.IGNORECASE)
+```
+---
 #### `__aexit__` method signature for async context managers
 ```python
 from typing import Optional, Type
