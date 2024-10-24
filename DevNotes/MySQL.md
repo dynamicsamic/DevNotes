@@ -207,3 +207,60 @@ with con.cursor() as cursor:
 	print(cursor.lastrowid) # => 0, MySQL can't retrieve last deleted id
 ```
 ---
+#### `MUL` key and just `KEY`
+```sql
+-- `MUL` key means either this column has an index or this column references other table's primary key. `MUL` does not imply UNIQUE or NOT NULL constraints on tables. `MUL` is shown when you describe a table.
+-- Take this example, where we don't create any key.
+>>> CREATE TABLE users (id int);
+>>> desc users; -- The Key column is empty
+... 
++-------+---------+------+-----+---------+-------+
+| Field | Type    | Null | Key | Default | Extra |
++-------+---------+------+-----+---------+-------+
+|   id  | int(11) | YES  |     | NULL    |       |
++-------+---------+------+-----+---------+-------+
+
+-- Now we create a `MUL` key via creating ad index 
+>>> CREATE TABLE users (id int, index(id));
+>>> desc users; 
+... 
++-------+---------+------+-----+---------+-------+
+| Field | Type    | Null | Key | Default | Extra |
++-------+---------+------+-----+---------+-------+
+|   id  | int(11) | YES  | MUL | NULL    |       |
++-------+---------+------+-----+---------+-------+
+
+-- And if we would have two tables one of which would reference the other's PK field, we would see the `MUL` key again.
+>>> CREATE TABLE users(id int PRIMARY KEY);
+>>> CREATE TABLE accounts(id int, FOREIGN KEY(id) REFERENCES users(id));
+>>> desc users; -- users have primary key on its `id` column
+... 
++-------+---------+------+-----+---------+-------+
+| Field | Type    | Null | Key | Default | Extra |
++-------+---------+------+-----+---------+-------+
+|   id  | int(11) | YES  | PRI | NULL    |       |
++-------+---------+------+-----+---------+-------+
+>>> desc accounts; -- accounts have `MUL` key on its `id` column
+... 
++-------+---------+------+-----+---------+-------+
+| Field | Type    | Null | Key | Default | Extra |
++-------+---------+------+-----+---------+-------+
+|   id  | int(11) | YES  | MUL | NULL    |       |
++-------+---------+------+-----+---------+-------+
+
+-- `KEY` without PRIMARY or FOREIGN is nearly a synonim for `index`.
+>>> ALTER TABLE users ADD COLUMN uin int;
+>>> ALTER TABLE users ADD KEY(uin);
+--- OR WE CAN
+>>> CREATE INDEX uin_idx ON users(uin);
+>>> desc users;
++-------+-------------+------+-----+---------+-------------------+
+| Field | Type        | Null | Key | Default | Extra             |
++-------+-------------+------+-----+---------+-------------------+
+| id    | int         | NO   | PRI | NULL    | auto_increment    |
+| name  | varchar(50) | NO   | UNI | NULL    |                   |
+| date  | timestamp   | YES  |     | now()   | DEFAULT_GENERATED |
+| uin   | int         | NO   | MUL | 0       |                   |
++-------+-------------+------+-----+---------+-------------------+
+```
+---
