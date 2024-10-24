@@ -38,16 +38,6 @@ with open('file.txt', 'a+') as f:
 	...
 ```
 ---
-#### Case insensitive regexp match
-```python
-import re
-
-re.search('test', 'Test', re.IGNORECASE)
-
-# Also possible to use with re.compile
-pat = re.compile('test', re.IGNORECASE)
-```
----
 #### `__aexit__` method signature for async context managers
 ```python
 from typing import Optional, Type
@@ -444,3 +434,69 @@ uv self update
 
 
 ```
+---
+#### Parsing `XML` files
+```python
+# XML is a hierarchical strucutre, it consists of the root node and child nodes, which in turn can contain more child nodes.
+# Python has builtin xml package.
+import xml.etree.ElementTree as ET
+
+# Construct a tree object from file 
+tree = ET.parse('/path/to/file')
+
+# Get tree's root.
+root = tree.getroot()
+
+# To iterate over root's children use a for loop.
+for element in root:
+	print(element) # Each element is an instance of ET.Element class
+
+# To traverse through all nodes in a tree use iter() method
+for element in root.iter():
+	print(element)
+
+# Like HTML tags xml tree's elements can also have attributes. 
+# For example: <country name="Russia"> and <neighbor name="Belarus">, here `county` is the element (tag) and `name` is attribute.
+# To get elements attrbutes use `attrib` property
+for element in root.iter():
+	print(element.tag, element.attrib)
+
+# It is also possible to construct xml tree from string instead of file.
+# Sample XML string
+s = """<?xml version="1.0"?>
+<data>
+    <country name="Liechtenstein">
+        <rank>1</rank>
+        <year>2008</year>
+        <gdppc>141100</gdppc>
+        <neighbor name="Austria" direction="E"/>
+        <neighbor name="Switzerland" direction="W"/>
+    </country>
+</data>"""
+
+element = ET.fromstring(s)
+# In this case ET a tree's root element. It does not have `getroot` method.
+```
+---
+#### Write `remote file's` contents to local file
+```python
+# Suppose we have a file on a remote server. We can read its contents, but do not have the `Download` file functionality. In this case we can read remote file's contents and write it to our local file.
+import requests
+
+response = requests.get('some.url')
+with open('path/to/file.ext', 'wb+') as file:
+	file.write(response.contents)
+```
+---
+#### Traverse directory recursively
+```python
+# The `walk` method from `os` package does the thing. It accepts a string-path and returns a generator which for every subdirectory yields a 3-tuple, consisting of current_directory, list of child directories, list of child files.
+
+# Printing all files can be done using this flow.
+import os
+
+for path, _, files in os.walk('/path/to/dir/'):
+	for file in files:
+		print(os.path.join(path, file))
+```
+---
