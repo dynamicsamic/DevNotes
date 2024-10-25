@@ -53,6 +53,7 @@ async def __aexit__(
 ) -> bool:
 		...
 ```
+---
 #### `timeit.timeit` usage from python interface
 ```python
 import timeit
@@ -498,5 +499,19 @@ import os
 for path, _, files in os.walk('/path/to/dir/'):
 	for file in files:
 		print(os.path.join(path, file))
+```
+---
+#### Raise exceptions when receiving bad status codes in `Requests`
+```python
+# You can avoid manually checking response statuses with `raise_for_status` method.
+# In case of a 4XX answer it will raise an error.
+import requests
+
+try:
+	response = requesets.get('unexisting_url_return_404.com')
+	response.raise_for_status()
+except Exception as e:
+	... # do something
+	raise
 ```
 ---
