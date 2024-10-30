@@ -38,6 +38,25 @@ with open('file.txt', 'a+') as f:
 	...
 ```
 ---
+#### Fastest substring match
+```python
+# Three are multiple ways to detect if a substring is present in a string.
+# The most simpple and popular are str.find(), re.match() and str in str.
+import re
+
+'hello world'.find('hello') # => 0, found at index zero
+'hello world'.find('not found') # => -1, not found
+
+pattern = re.compile('hello')
+pattern.match('hello world') # => <re.Match object; span=(0, 5), match='hello'>
+pattern.match('not found') # => None
+
+'hello' in 'hello world' # => True
+'not found' in 'hello world' # => False
+
+# Out of theese 3 methods the `in` method is the fastest, second - str.find, third - re.match
+```
+---
 #### `__aexit__` method signature for async context managers
 ```python
 from typing import Optional, Type
