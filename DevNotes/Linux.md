@@ -180,9 +180,6 @@ sudo service apache2 stop
 
 # Start nginx service
 sudo service nginx start
-<<<<<<< HEAD
-```
-=======
 ```
 ---
 #### File permissions
@@ -244,4 +241,22 @@ Birth:  2024-10-17 12:49:07.129337385 +0300
 ... -rwxr-xr-x 1 tr_sup tr_sup 750 Oct 17 14:40 edu/python/file.py
 ```
 ---
->>>>>>> win
+#### `Screen` utility to perform long-running commands
+```bash
+# screen allows you to run commands and scripts in a detached subtermial.
+# It spawnes a new terminal subprocess and runs your command until it finishes or  unitl the system failed.
+
+# List all availavle sessions
+screen -ls
+
+# Create a new session
+screen -S session_name
+
+# Detach a this session from your current terminal
+Ctrl+a+d
+
+# Reattach the session to your terminal
+screen -r session_name
+```
+---
+
