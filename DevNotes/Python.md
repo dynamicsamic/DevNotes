@@ -534,3 +534,53 @@ except Exception as e:
 	raise
 ```
 ---
+#### Allow importing from parent and sibling directories by creatin a python package
+```python
+# Importing from sibling or parent directories isn't trivial in Python. It requires manipulating PYTHONPATH env variable and looks a bit hacky.
+# To overcome this limitation you can turn your working directory into a python package and install it as usual pip package.
+
+# Create a root directory for your package with descriptive name.
+mkdir codebase
+
+# Inside your root directory create a virtual environment
+python -m venv .venv --prompt codebase
+
+# Activate venv and install external dependecies
+source .venv/bin/activate
+(codebase)$ pip install pandas ...
+
+# Inside root directory create pyproject.toml file with contents like this
+[project]
+name = "codebase"
+version = "0.1.0"
+description = "My small project"
+
+[build-system]
+build-backend = "flit_core.buildapi"
+requires = ["flit_core >=3.2,<4"]
+
+# Now install your package via pip in editable mode. Editable mode is needed to reflect changes made to `installed` python files.
+(codebase)$ pip install -e .
+
+# Create your source code structure
+mkdir codebase/lib # `lib` stores source code that other modules will import 
+touch codebase/lib/__init__.py codebase/lib/funcs.py
+
+mkdir codebase/client # `client` - application code that will import from `lib`
+touch codebase/client/__init__.py codebase/client/client_mod.py
+
+# Inside codebase/lib/func.py
+def echo(arg):
+	print(arg)
+
+# Inside codebase/client/client_mod.py
+from codebase.lib.func import echo # You need to include import path from the root directory
+
+echo("Hi, my name is John")
+
+
+# Return to terminal
+(codebase)$ python codebase/client/client_mod.py
+... Hi, my name is John
+```
+---
