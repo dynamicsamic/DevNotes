@@ -584,3 +584,35 @@ echo("Hi, my name is John")
 ... Hi, my name is John
 ```
 ---
+#### Create custom types for dictionaries with certain contents
+```python
+# If you need to restrict type of dictionaries your code works with, you can create a custom dictionary with certain keys.
+from typing import TypedDict
+
+class MyStrictDict(TypedDict):
+	key1: str
+	key2: int
+
+# Alternative syntax
+MyStrictDict = TypedDict('MyStrictDict', {'key1': str, 'key2': int})
+
+# Mark certain key as not required
+from typing import NotRequired
+
+class NotSoStrictDict(TypedDict):
+	strict: str
+	loose: NotRequired[int]
+
+# It is also possible to mark all keys as not required
+class LooseDict(TypedDict, total=False):
+	key1: str
+	key2: int
+
+# It is also possible to mark a filed as required when all fields are not required
+from typing import Required
+
+class MixedDict(TypedDcit, total=False):
+	strict: Required[str]
+	loose: int
+```
+---
