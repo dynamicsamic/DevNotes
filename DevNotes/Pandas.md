@@ -60,3 +60,33 @@ import pandas as pd
 df = pd.read_csv('path/to/file', sep=',', engine="pyarrow")
 ```
 ---
+#### Dataframe filtering
+```python
+import pandas as pd
+
+df = pd.read_xml(...)
+
+# Filter by <str> `status` column which has `cancel` in its value
+df[df["status"].str.contains("cancel")]
+# Note that here `df["status"].str.contains("cancel")` returns a pd.Series object with two columns - "index" and "status". This Series object is wrapped by a dataframe and its index column `selects` the wrapper dataframe rows.
+
+# Filter by <str> `status` column which has not `wait` in its value
+df[~df["status"].str.contains("wait")]
+
+# Filter by <int> "id" column which equals to 1
+df[df["id"].eq(1)]
+```
+---
+#### Concatenating two dataframes
+```python
+df1 = pd.concat([df1, df2], axis=0)
+
+# Resulting dataframe will probably contain non unique index value. This will prevent you from saving you dataframe into a file resulting in error: ValueError: DataFrame index must be unique for orient='columns'.
+# To overcome this you can:
+# - drop index column at all, if you don't need it.
+df1.reset_index(drop=True, inplace=True)
+
+# - reset the index to recalculate it from scratch
+df.reset_index(inplace=True)
+```
+---

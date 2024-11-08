@@ -264,3 +264,101 @@ with con.cursor() as cursor:
 +-------+-------------+------+-----+---------+-------------------+
 ```
 ---
+#### Read current session's settings
+```sql
+SELECT @@session.sql_mode;
++--------------------------------------------------------------------+
+| @@SESSION.sql_mode                                                 |    
++--------------------------------------------------------------------+
+| STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,|
+| ERROR_FOR_DIVISION_BY_ZERO,TRADITIONAL,NO_ENGINE_SUBSTITUTION      |
++--------------------------------------------------------------------+
+1 row in set (0.01 sec)
+```
+---
+#### Show current session's warnings
+```sql
+SHOW WARNINGS;
+```
+---
+#### Get a character from its ASCII numeric value
+```sql
+-- The CHAR function takes multiple numeric values and returns a string. You need  to explicitly provide character set to get values from. Otherwise the result will be in hexadeciaml encoding.
+SELECT CHAR(67,72,65,82 USING ASCII)
+-- OR
+SELECT CHAR(67,72,65,82 USING utf8mb4)
+=> 'CHAR'
+```
+---
+#### `POSITION`function to find first substring in a string and return its start index with 
+```sql
+--- The POSITION function takes an expression in form of <substrin> IN <string> and returns the starting index of the substring in string. If no match found, 0 is returned.
+SELECT POSITION('hello' IN 'hello world'); => 1, indexing is 1-based
+SELECT POSITION('world' IN 'hello world'); => 7
+SELECT POSITION('not_found' IN 'hello world'); => 0
+```
+---
+#### `LOCATE` function to find substring in a string from arbitrary index and return substring's start index
+```sql
+-- LOCATE works similar to `POSITION` but it lets you to begin substring search from arbitrary index.
+SELECT LOCATE('hello', 'hello world'); => 1, indexing is 1-based
+SELECT LOCATE('hello', 'hello world hello', 3); => 13, first substring skipped
+SELECT LOCATE('not_found', 'hello world'); => 0
+```
+---
+#### `STRCMP` function to compare strings
+```sql
+-- STRCMP recieves two strings and return 0 if strings are equal, 1 if second string is preceeding the first in lexicographical order and -1 otherwise. It is case insensitive.
+SELECT STRCMP('hello', 'hello'); => 0, strings equal
+SELECT STRCMP('hello', 'HELLO'); => 0, strings equal
+SELECT STRCMP('hello', 'aaa'); => 1, 'aaa' preceeds 'hello'
+SELECT STRCMP('hello', 'zzz'); => -1, 'zzz' goes after 'hello'
+```
+---
+#### `INSERT` function to modify strings
+```sql
+-- INSERT modifies a string by inserting a a new string into current one. It is also possible to substitute characters by string inserted.
+-- You should provide target string, index at which to insert new string, number of characters to replace in target string and the string to insert.
+SELECT INSERT('hello world', 6, 0, ' happy'); => 'hello happy world', the new substring was inserted at index 6 of the old string, no characters substituted
+
+SELECT INSERT('hello world', 1, 5, 'goodbye'); => 'goodbye world', the new substring was inserted at index 1 of the old string, and 5 characters were replaced with this string.
+
+SELECT INSERT('hello world', 1, 5, ''); => 'world', we replaced first 5 characters with an empty string.
+```
+---
+#### `SUBSTRING` function to create substrings
+```sql
+-- SUBSTRING recieves target string, target string's index to start substring from and the length of the substring.
+SELECT SUBSTRING('massachusetts', 1, 5); => 'massa'
+SELECT SUBSTRING('massachusetts', 9, 3); => 'set'
+SELECT SUBSTRING('massachusetts', 1); => 'massachusetts'
+-- Start index may be negative. This way -1 is the last char's index, -2 is prelast and so on.
+SELECT SUBSTRING('massachusetts', -5); => 'setts'
+SELECT SUBSTRING('massachusetts', -5, 3); => 'set'
+```
+---
+#### Current session `timezone`
+```sql
+SELECT @@SESSION.time_zone;
++---------------------+
+| @@session.time_zone |
++---------------------+
+| SYSTEM              |
++---------------------+
+
+-- Change the timezone
+SET @@SESSION.time_zone = '+03:00' -- set session time to Moscow time
+```
+---
+#### `EXTRACT` function to extract datetime parts
+```sql
+-- You can extract different parts from datetime string such as year, month, hours ...
+SELECT EXTRACT(YEAR FROM '2023-01-01'); => 2023
+SELECT EXTRACT(HOUR FROM '2024-01-01 20:00:59'); => 20
+
+-- String must be ISO formatted
+SELECT EXTRACT(HOUR FROM 'JAN, 01 2024 20:00:59'); => NULL
+```
+---
+
+
