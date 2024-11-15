@@ -220,6 +220,40 @@ sudo service nginx start
 # After that we see the file or directory size in bytes, here it equals to 750.
 # Then goes the last modification time.
 # And the file name concludes the output.
+
+# The `chmod` utility is used to change file permissions.
+
+# Grant executable permissions for everyone
+chmod +x file.txt
+-rwxrwxr-x
+
+# Revoke executable permission from everyone
+chmod -x file.txt
+-rw-rw-r--
+
+# Discard previous permissions and set only executable permissions for everyone
+chmod =x file.txt
+---x--x--x
+
+# Discard previous permissions and set read and write permissions for everyone
+chmod =x file.txt
+-rw-rw-r--
+
+# You can also prefix the sign with `u`, `g`, `o` and `a` arguments, which stand for `user`, `group`, `others` and `all` respectively. `a` is the default option if you omit this argument.
+
+# Set read permission to everyone and grant write permission only to user
+chmod =r file.txt   # -r--r--r--
+chmod u+w file.txt  # -rw-r--r--
+
+# Grant write permission to group
+chmod g+w file.txt  # -rw-rw-r--
+
+# Set read permission only to others
+chmod o=r file.txt  # -rwxrwxr--
+
+# Multiple permission changes for different types of users may be done in one command, separating each user type with comma.
+# Here we set read, write and execute permission to user, read and execute permissions to group and read permission to others.
+chmod u=rwx,g=rx,o=r file.txt # no spaces strictly
 ```
 ---
 #### View file properties
@@ -259,4 +293,49 @@ Ctrl+a+d
 screen -r session_name
 ```
 ---
+#### Get snapshot of current processes with `ps`
+```bash
+# Show current processes' snapshot in detailed view
+ps -aux # or -auxf to add additional formatting
+USER   PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root     1  0.0  0.0 167316 11884 ?        Ss   16:28   0:02 /sbin/init splash
+root     2  0.0  0.0      0     0 ?        S    16:28   0:00 [kthreadd]
+root     3  0.0  0.0      0     0 ?        S    16:28   0:00 [pool_workqueu...]
+root     4  0.0  0.0      0     0 ?        I<   16:28   0:00 [kworker/R-rcu_g]
+root     5  0.0  0.0      0     0 ?        I<   16:28   0:00 [kworker/R-rcu_p]
+root     6  0.0  0.0      0     0 ?        I<   16:28   0:00 [kworker/R-slub_]
+root     7  0.0  0.0      0     0 ?        I<   16:28   0:00 [kworker/R-netns]
+root     8  0.0  0.0      0     0 ?        I    16:28   0:00 [kworker/0:0-rcu_gp
+................................................................................
+sammi 3853  0.0  0.1 344108 24324 ?        Ssl  16:28   0:00 /usr/libexec/xdg...
+sammi 3880  0.0  0.1 194244 24588 ?        Sl   16:28   0:00 /usr/libexec/ibus...
+root  3904  0.0  0.0      0     0 ?        I<   16:28   0:00 [kworker/u37:2-ttm]
+root  3975  0.0  0.2 394348 32444 ?        Ssl  16:28   0:01 /usr/libexec/fwup...
+sammi 3976  0.0  0.0 163052  6528 ?        Ssl  16:28   0:00 /usr/libexec/gvfsd
+sammi 5882 17.4  1.7 5838376 274496 ?      Sl   16:29   9:06 /snap/vlc/
+root  6009  0.0  0.0      0     0 ?        I    16:29   0:00 [kworker/7:2-events]
+sammi 6070  0.0  0.1 494264 30772 ?        Sl   16:29   0:00 update-notifier
 
+# What the output means
+USER - the user who started the process
+PID - process ID
+%CPU - percentage of CPU (one CPU core) usage
+%MEM - percentage of RAM usage
+VSZ - maximum virtual memory size that can be used, KB
+RSS - real physical memory used, KB
+TTY - wheter the process controls the terminal
+STAT - the state of the process;
+	  S - interrupted, waits for event to complete
+	  l - multi-threaded
+	  < - high priority (not nice to other processes)
+	  I - idle kernel thread 
+	  N - low priority (nice to other processes)
+	  R - running or runnable
+	  + - in the foreground process
+START  - time the process started
+TIME - cumulative cpu time in seconds
+COMMAND - command/file that started the process with all its arguments and flags
+
+# If the output is too long you can combine it with less command and paginate the output
+ps -auxf | less
+```
