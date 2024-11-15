@@ -1,4 +1,4 @@
-#### Read files quick reference
+`#### Read files quick reference
 ```python
 from pathlib import Path
 import pandas as pd
@@ -164,6 +164,56 @@ df.assing(another_col = lambda frame: frame["new_col"].str.lower())
 	 .assign(new_col=[1,2,3,4])
 	 .rename({"new_col": "Новая колонка"}, axis="columns")
 )
+
+# Conditional assignment also possible.
+# Here we use numpy's `.where` method. This method receives a condition in a form of sequence of values (usually a 1 or more dimentional vectors), a value or sequence of values for rows satisfying condition and a value or a sequence of values for those not satisfying the condition. 
+# `.where` also produces a sequence (vector), thats why pandas dataframes and series coopearte with it greatly.
+# The main constraint when using the `.where` method - all arguments must of the same dimention. It means that when you work with two columns, you need to provide a list or tuple of two values. 
+# In this example we add new column named `another_col` to dataframe and assign it values depending on the the `new_col` values.
+import numpy as np
+df.assign(
+	another_col=lambda frame: np.where(
+		frame["new_col"] == "hello world", # a condition
+		"greeting",                     # value when condition true
+		"something else"                # value when condition false
+	)
+)
+
+# We can use dataframe columns in for all parameters in `.where` method.
+df.assign(
+	bonus=lambda frame: np.where(
+		frame["evaluation_mark"] > 6,
+		frame["salary"] * 0.2,
+		frame["salary"] * 0.01
+	)
+)
+
+# Conditional assignment with np `.where` and `.mask` methods are a less rich.
+df.assign(
+	bonus=lambda frame: frame["salary"].where(
+		frame["evaluation_mark"] > 6, # condition to evaluate
+		frame["salary"] * 0.2,        # update values if condition is false
+	)
+)
+
+df.assign(
+	bonus=lambda frame: frame["salary"].mask(
+		frame["evaluation_mark"] > 6, # condition to evaluate
+		frame["salary"] * 0.2,        # update values if condition is true
+	)
+)
+
+# A more advanced functionality for conditional assignment is provided by the `np.select` function.
+# np.select receives a sequence of conditions, a sequence of values for each condition to be used when the condition is true, and a default value to be used when none of condtitions is true.
+# We add a rank column depending on the score column. If the score does not match any of the conditions, it means it is higher than 90, then we assign 'grand master' to it
+df.assign(
+	rank=lambda frame: np.select(
+		[frame["score"] < 20, frame["score"] < 50, frame["score"] < 90],
+		["beginner", "medium", "pro"],
+		"grand master"
+	)
+)
+
 
 # It is also possible to replace columns with loc and iloc dataframe methods.
 # Additionally the loc method will create a new column, if it does not exist.
@@ -431,6 +481,26 @@ pd.Series(list(range(10))).to_frame('nums').query("nums in [1,2,3]")
 # It is also possible to filter rows and columns with `.loc` method passing lambda functions in it.
 # Here we select only rows that are present once (does not have duplicates) 
 df.loc[~lambda dframe: dframe[["name", "position"]].duplicated(keep=False)]
+
+# Conditional filtering with dataframe `.where` and `.mask` methods.
+# These methods workd similar. They receive a condition (usually a column) and a value or values. 
+# `.where` method uses the value(s) when condition is false, and if condition is true values from original column are used.
+# `.mask` method uses the value(s) when condition is true, and if condition is false it uses values from original column.
+# In this example we update salary column depending on position name. If position name equals to "Директор магазина", we leave it as is, otherwise we raise the salary by 20%. 
+empl["salary"].where(
+	empl["pos_name"] == "Директор магазина", 
+	empl["salary"] * 1.2
+)
+# Scalar value can also be used.
+empl["salary"].where(empl["pos_name"] == "Директор магазина", 100000)
+
+# With mask we update only those who have position name == "Директор магазина". Others will keep their values.
+empl["salary"].mask(
+	empl["pos_name"] == "Директор магазина", 
+	empl["salary"] * 1.2
+)
+# Scalar value can also be used.
+empl["salary"].mask(empl["pos_name"] == "Директор магазина", 100000)
 ```
 ---
 #### Concatenating two dataframes
@@ -446,3 +516,29 @@ df1.reset_index(drop=True, inplace=True)
 df.reset_index(inplace=True)
 ```
 ---
+#### Working with values
+```python
+import pandas as pd
+import numpy as np
+
+df = pd.read_xml('path/to/file')
+
+# Find the minimum value from every row of 3 columns
+np.minimum(df["col1"], df["col2"], df["col3"])
+
+# Find maximum value from every row of 3 columns
+np.maximum(df["col1"], df["col2"], df["col3"])
+
+# Find minimum value from row of a column and a constant value
+np.minimum(df["col1"], 295)
+
+# Find minimum and maximum with pd.series.min and max methods
+df["col1"].min()
+df["col2"].max()
+
+# Return a constant instead of lower values
+df["col1"].clip(10_000) # return 10_000 for every row value lower than 10_000
+
+# Return constants instead of lower and higher values
+df["col1"].clip(10_000, 50_000) # return 10_000 for every row value lower than 10_000 and 50_000 for every row value higher than 50_000
+```
