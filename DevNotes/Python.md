@@ -273,6 +273,17 @@ timezone = ZoneInfo("Europe/Moscow")
 now = datetime.now(tz=timezone)
 ```
 ---
+#### Create datetimes from strings
+```python
+from datetime import datetime
+
+# If you have an ISO formatted datetime string
+datetime.fromisoformat('2024-11-21 20:12:44')
+
+# If you have string with custom formatting
+datetime.strptime('21/11/24 21.22.11', '%d/%m/%y %H.%M.%S')
+```
+---
 #### How to work with `namedtuple`
 ```python
 from collections import namedtuple
@@ -614,5 +625,26 @@ from typing import Required
 class MixedDict(TypedDcit, total=False):
 	strict: Required[str]
 	loose: int
+```
+---
+#### Save list of dictionaries as JSON file
+```python
+import json
+
+items = [
+	{"name":"John", "age": 24}, 
+	{"name": "Bob", "age": 44},
+]
+
+with open('file.json', 'w+', encoding='utf-8') as f: 
+	json.dump(items, f, ensure_ascii=False, indent=4) # Not `dumps` but `dump`
+```
+---
+#### Working with csv files
+```python
+```
+---
+#### Working with xml files
+```python
 ```
 ---

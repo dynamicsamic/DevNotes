@@ -1,4 +1,4 @@
-`#### Read files quick reference
+#### Read files quick reference
 ```python
 from pathlib import Path
 import pandas as pd
@@ -48,6 +48,12 @@ print(df["second_sheet"])
 
 # Here the first two COLUMNS are virtical header, meaning they don't contain data, they serve more like additional shape to the column layout.
 # On the other hand the first two ROWS are horizontal headers, they shape the layout in its own way.
+
+# Sometimes source files may contain non utf-8 encoding.
+# To overcome this you can either provide a value to `encoding` parameter, or if you don't know the encoding beforehand provide value ro `encoding_errors`.
+df = pd.read_csv('file.csv', sep=";", encoding_errors='ignore')
+# Malformed values will be set to NaN, and you can filter them out or replace.
+df.info()
 
 # In pandas read_csv method virtical headers can be 
 ```
@@ -542,3 +548,367 @@ df["col1"].clip(10_000) # return 10_000 for every row value lower than 10_000
 # Return constants instead of lower and higher values
 df["col1"].clip(10_000, 50_000) # return 10_000 for every row value lower than 10_000 and 50_000 for every row value higher than 50_000
 ```
+---
+#### Mathematical operations
+```python
+# Mathematical operations in pandas are vectorized, which means that operations are applied on whole series or dataframes not individual cells.
+df = pd.DataFrame(
+    {
+        "names": ["joe", "bob", "helen", "gill", "alice"],
+        "math": [2, 4, 4, 5, 3],
+        "history": [4, 3, 5, 5, 4],
+    }
+)
+
+# Numeric columns support all python mathematic operators.
+df["math"] + 10 # Add 10 to all rows in `math` columns
+df["math"] - 10 # Subtract 10 to all rows in `math` columns
+df["math"] * 2 # Multiply all rows in `math` column by 2
+df["math"] / 2 # Divide all rows in `math` column by 2
+df["math"] // 2 # Divide without remaining all rows in `math` column by 2
+df["math"] ** 2 # Square all rows in `math` column
+df["math"] % 2 # Find division remaining by 2 for all rows in `math` column
+
+# String columns support `+` and `*` math operators.
+df["names"] + ' student' # Add ' student' to all strings in `name` column
+df["names"] * 3 # Copy all strings in `name` column 3 times
+
+# You can apply mathematic operations to the whole dataframe.
+df * 2 # Numeric values will be doubled, string values will be copied 2 times
+
+# Or sub dataframes
+df.loc[:, "math": "history"] * 2
+df.iloc[1:3, 1:] // 2
+
+# OR use multiple columns
+df[["math", "history"]] // 2
+
+# OR use derived dataframe
+df.drop(columns=["names"]) // 2
+
+# Columns can be added together to produce new series object
+df["math"] + df["history"]
+
+# If you have empty value in you column (NaN, None...) it won't be coerced to 0 and the result of mathematical operation would be empty.
+df["math"] + pd.Series([None, 1, 2, 3, 4])
+0    NaN  # Wasn't coerced to 0
+1    5.0
+2    6.0
+3    8.0
+4    7.0
+dtype: float64
+# To overcome this behaviour you should explicitly convert empty values with `fillna()` method. Pass a value (in this case it's 0)
+df["math"] + pd.Series([None, 1, 2, 3, None]).fillna(0)
+0    2.0
+1    5.0
+2    6.0
+3    8.0
+4    7.0
+dtype: float64
+
+# The same rule workd when dividing empty values. Dividing a value by empty value or dividing an empty value by other value results in NaN. Dividing by 0 results in `inf`.
+print(pd.Series([None, 10, 12]) / 2) # [NaN, 5.0, 6.0]
+print(pd.Series([None, 10, 12]) / 0) # [NaN, inf, inf]
+
+# Important note when adding dataframe and series objects - their indexes should be the same to produce predictable results.
+# Here we add two series objects with opposite values, which will produce 0 series
+pd.Series([1,2,3,4]) + pd.Series([-1,-2,-3,-4]) # => pd.Series([0,0,0,0])
+# Here we mess up the second series' index which yeilds an unexpected outcome.
+pd.Series([1,2,3,4]) + pd.Series([-1,-2,-3,-4], index=[3,2,1,0])
+# => pd.Series([0,-1,1,3])
+
+# Integers can not be multiplied to negative powers. To overcome this use `astype(float)` method.
+df["math"].astype(float) ** -2
+
+# Dataframe operations with lists are applied in this way: the first item in list is applied to the first column, second item - to second column and so on. Number of items in list and number of columns in the dataframe must be equal.
+df = pd.DataFrame(
+	{"col1": range(0, 5), "col2": range(100, 105), "col3": range(1000, 1005)}
+)
+df + [1, 10, 100]
+
+   col1  col2  col3
+0     1   110  1100
+1     2   111  1101
+2     3   112  1102
+3     4   113  1103
+4     5   114  1104
+
+# Mixing dataframes and series in one operation produces unexpected results. This happens because of index conflict, but I did not dig enough to explain this.
+# To add a flat series object to a dataframe use `to_numpy().reshape(-1, 1)`.
+df + pd.Series([10,11,12,13,14]).to_numpy().reshape(-1, 1)
+# This way all series elements will be added to every column according to their indexes.
+```
+#### Matrix operations
+```python
+```
+---
+#### Mathematical functions
+```python
+# Popular numpy functions
+import numpy as np
+import pandas as pd
+
+# With numpy you can perform vectorized calculations.
+np.log(pd.Series([1,2,3,]))
+np.sin(pd.Series([1,2,3,]))
+np.cos(pd.Series([1,2,3,]))
+...
+
+# Get absolute values with `abs` pandas method
+pd.Series([1,-2,-3,4]).abs() # [1,2,3,4]
+
+# Round values to N decimal places.
+pd.Series([6.22, 1.22344, 4.2, 5]).round(2) # [6.22, 1.22, 4.20, 5.00]
+
+# Round values to N integer places with negative N
+pd.Series([201.22, 42231.22344, 9874.2, 58733]).round(-2) # [200.0, 42200.0, 9900.0, 58700.0]
+
+# Round up with `np.ceil` and round down with `np.floor`
+np.ceil(pd.Series([6.22, 1.22344, 4.2, 5])) # [7.0, 2.0, 5.0, 5.0]
+np.floor(pd.Series([6.22, 1.22344, 4.2, 5])) # [6.0, 1.0, 4.0, 5.0]
+
+# There are also functions that count cumulative results
+pd.Series([1, 2, 3, 4]).cumsum() # [1, 3, 6, 10]
+pd.Series([1, 2, 3, 4]).cumprod() # [1, 2, 6, 24]
+pd.Series([1, 2, 3, 0, 4, -1]).cummin() # [1, 1, 1, 0, 0, -1]
+pd.Series([1, 2, 3, 0, 4, -1]).cummax() # [1, 2, 3, 3, 4, 4]
+
+# By default all empty values are ignored during calculation and returned as is
+pd.Series([1, None, 3, 4]).cumsum() # [1, NaN, 4, 8]
+pd.Series([1, 2, None, 0, 4, -1]).cummin() # [1, 1, NaN, 0, 0, -1]
+
+# You can change this by setting the `skipna` parameter to False.
+# This way all results starting from the empty value will also be marked as empty
+pd.Series([1, 2, None, 0, 4, -1]).cummin(skipna=False) # [1, 1, NaN, NaN, NaN, NaN]
+
+# This functions can be applied to dataframes if all the columns have numeric or empty values.
+pd.DataFrame({"col1": [1, 2, 3, 4], "col2": [6, None, 7, 8]}).cumsum()
+   col1  col2
+0     1   6.0
+1     3   NaN
+2     6  13.0
+3    10  21.0
+
+# Per-row cumulative calculations are also possible.
+pd.DataFrame(
+    {
+        "col1": [1, 2, 3, 4],
+        "col2": [6, None, 7, 8],
+        "col3": [100, 10, 20, 1]}
+)
+.cumsum(axis=1)
+   col1  col2   col3
+0   1.0   7.0  107.0
+1   2.0   NaN   12.0
+2   3.0  10.0   30.0
+3   4.0  12.0   13.0
+
+# Columns have properties that can tell about value sorting.
+# `is_monotonic_increasing` returns true if values are in non-decreasing order.
+pd.Series([1, 2, 3, 4]).is_monotonic_increasing # True
+pd.Series([1, 2, 3, 1]).is_monotonic_increasing # False
+pd.Series([0, 0, 0, 0]).is_monotonic_increasing # True
+pd.Series([None, None, None, None]).is_monotonic_increasing # False
+
+# `is_monotonic_decreasing` returns true if value are in non-increasing order.
+pd.Series([5, 4, 4, 4, 2]).is_monotonic_decreasing # True
+pd.Series([1, 2, 3, 4]).is_monotonic_increasing # False
+pd.Series([0, 0, 0, 0]).is_monotonic_decreasing # True
+
+# Python builtin funcitons min, max, sum, len, abs, also work with columns.
+max(pd.Series([1, 2, 3, 4])) # 4
+len(pd.Series([1, 2, 3, 4])) # 4
+
+# Note that only functions that expect iterables work with series natively.
+# For example functions from math module such as `log` or `sin` expect a single value, using series objects with these functions will result in error.
+```
+---
+#### Replacement and transformation functions
+```python
+import pandas as pd
+
+df = pd.DataFrame(
+	{
+	"role": ["client", "admin", "tutor", "client"],
+	"occupation": ["supplier", "worker", "client", "other"]
+	}
+)
+
+# Pandas dataframe and series objects have `replace` method that replaces old values with new ones.
+# Replace every 'client' value with `user`.
+df.replace({"client": "user"})
+
+# Replace multiple old values with multiple new ones by providing list of old values and list of new values.
+df.replace(["client", "other"], ["user", "undefined"])
+
+# Preivous notaiton is equivalent to the one below providing dictionary.
+df.replace({"admin": "ADMIN", "client":"CLIENT"})
+
+# Replace multiple old values with one new value by providing a list of old values and a value to be used for raplacing every old value.
+df.replace(["client", "other"], "undefined")
+
+# The same work for single columns
+df["role"].replace({"admin": "ADMIN"})
+
+# Another option for working with single columns is by naming it in dataframe
+df.replace({"role":{"client": "user"}})
+
+# A powerful feature of replace can be regex usage
+df.replace({"^c.+t&": "user"}, regex=True)
+
+# You can apply replacing or transformation funcion with `map` method.
+# Map will apply provided function to all values.
+df.map(lambda x: "user" if x == "client" else x) # Replace all occurances of `client` with `user`.
+
+# When applied to Series object map can take a mapping instead of a function.
+# In this case all values, that are not in the mapping will be replaced with NaN
+df["role"].map({"client": "user"})
+0    user
+1     NaN
+2     NaN
+3    user
+
+# To change this behaviour you can use the hack below.
+# Here lambda function provides values for the dictionary .get method.
+df["role"].map(lambda x: {"client": "user"}.get(x, x))
+
+# A much better choice would be to use a normal lambda function.
+df["role"].map(lambda x: "user" if x == "client" else x)
+
+# A somewhat similar function for applying functions to dataframes and columns is `aplly`.
+# By default when applied to dataframe it works on by-column basis.
+df.apply(lambda col: col.str.upper()) # Here lambda receivec a column
+df.apply(lambda col: "hello " + col)
+
+# To make it work on by-row basis use `axis=1` argument. This way you are able to engage columns in transformations.
+# Here lambda receives a row.
+df.apply(lambda row: row["role"] + " is better that " + row["occupation"], axis=1)
+
+# This can be useful in conjunction with `.iloc` method.
+df.iloc[:10, :].apply(
+	lambda row: row["role"] + " is better that " + row["occupation"], 
+	axis=1
+)
+
+# `apply` also works with separate columns.
+# lambda receives individual value.
+df["role"].apply(lambda val: val.upper())
+pd.Series([1,2,3,4]).apply(lambda val: val**2)
+pd.Series([1,2,3,4]).apply(lambda val: 0) # you can skip original values
+
+# Another convinient function that mutates values by applying functions is `transform`. It is applied to each value in a dataframe or series.
+# It's main purpose - make calculations based on existing values.
+df.transform(lambda val: val + 'hello' + val[0])
+pd.Series([1, 2,3, 4]).apply(lambda val: val ** 2)
+
+# Unlike `apply` or `map` you can't just skip original values and replace them with random ones when working with dataframes.
+df.transform(lambda val: 'new_val') # ValueError: Function did not transform
+
+# You can also use per-row transformation with axis=1. As in `apply` you can refer to columns by indexing them, but again you should reference your original value.
+df.transform(lambda val: val + val["occupation"] * len(val), axis=1) # valid
+df.transform(lambda val: val["role"] + val["occupation"], axis=1) # invalid
+
+# When transforming columns (series), there is no restriction on using original values.
+df["role"].transform(lambda val: 'random') # replace everything with 'random'
+pd.Series([1,2,3,4]).transform(lambda val: 0) # replace everything with `0`
+
+# If you have multiple functions that work as a pipeline, you can do that in usual way - by manually passing each function result to next function.
+func3(
+	  func2(
+		  func1(df, arg1, arg2),
+		  arg1,
+		  arg2
+	  ),
+	  arg1,
+	  arg2
+)
+
+# Or you can use the `.pipe` method to chain those functions in a more readable way
+(
+	 df
+	 .pipe(func1, arg1=..., arg2=...)
+	 .pipe(func2, arg1=..., arg2=...)
+	 .pipe(func3, arg1=..., arg2=...)
+)
+
+# For example, instead of writing this
+((((1 / pd.Series(range(1, 1000001))) ** 2) * 6).cumsum()) ** -2
+# You can write this
+(
+    pd.Series(range(1, 1000001))
+    .pipe(lambda col: 1 / col)
+    .pipe(lambda col: col**2)
+    .pipe(lambda col: col * 6)
+    .pipe(lambda col: col.cumsum())
+    .pipe(lambda col: col**-2)
+)
+# It may be a bit slower to run multiple functions, but it certainly easier to read and debug.
+# One main point you need to pay attention what each function returns. If your goal to work with dataframes only return dataframes from your functions.
+```
+---
+#### Converting values
+```python
+# Nullifying coruppted data during type convertion.
+df["col1"] = pd.to_numeric(df["col1"], errors="coerce").fillna(0)
+```
+---
+#### Sorting DataFrames and Series
+```python
+import pandas as pd
+
+df = pd.DataFrame(
+    {
+        "dates": pd.to_datetime(["2021-10-09", "2022-01-01", "2024-05-23"]),
+        "names": ["first", "second", "third"],
+        "values": [1, 2, 3],
+    }
+)
+
+# Values are sorted with `.sort_values` method for dataframes or series.
+# Sort dataframe by 'dates' column.
+df.sort_values(by="dates")
+
+# Sort dataframe in descending order.
+df.sort_values(by="dates", ascending=False)
+
+# Sort dataframe by multiple columns.
+df.sort_values(by=["dates", "values"])
+
+# Sort dataframe by multiple columns with one direction.
+df.sort_values(by=["dates", "values"], ascending=False)
+
+# Sort dataframe by multiple columns with multiple directions.
+df.sort_values(by=["dates", "values"], ascending=[False, True])
+
+# Sort single column.
+df["dates"].sort_values(ascending=False)
+
+# It is also possible to sort by index.
+df.sort_index(ascending=False)
+
+# If you have comples index, you can sort by multiple index rows.
+# You can pass index names or their positions 
+df.sort_index(level=["names", 0], ascending=[True, False])
+
+# There is also `.rank` function, if you need to rank values.
+df.iloc[:5, -1].rank(method="average")
+# the `method` parameter determines how to treat duplicate values.
+# "average" - is the default behaviour, it calculates the average rank and assigns it to all duplicates.
+pd.Series([1,3,3,4,5]).rank(method="average") # [1.0, 2.5, 2.5, 4.0, 5.0]
+
+# "min" - calculates the minimal position and assigns it to all duplicates.
+pd.Series([1,3,3,4,5]).rank(method="min") # [1.0, 2.0, 2.0, 4.0, 5.0]
+
+# "max" - calculates the maximum position and assigns it to all duplicates.
+pd.Series([1,3,3,4,5]).rank(method="max") # [1.0, 3.0, 3.0, 4.0, 5.0]
+
+# "first" - assigns unique values to all duplicates.
+pd.Series([1,3,3,4,5]).rank(method="first") # [1.0, 2.0, 3.0, 4.0, 5.0]
+
+# "dense" - works like "min", but does skip ranks for duplicate values.
+pd.Series([1,3,3,4,5]).rank(method="dense") # [1.0, 2.0, 2.0, 3.0, 4.0]
+
+# `rank` also provides the the `ascending` parameter
+pd.Series([1,3,3,4,5]).rank(method="dense", ascending=False) # [4.0, 3.0, 3.0, 2.0, 1.0]
+```
+---

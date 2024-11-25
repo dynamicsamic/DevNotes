@@ -65,6 +65,9 @@ curl -X PUT -H "Content-Type: application/json" \
 
 # DELETE
 curl -X DELETE http://example.com/products/234944
+
+# GET with authorization token
+curl -H "Authorization: Bearer dfk4k04881fj" https://example.com/products/2344
 ```
 ---
 #### Generate `rsa` keys for `ssh` connection
@@ -339,3 +342,33 @@ COMMAND - command/file that started the process with all its arguments and flags
 # If the output is too long you can combine it with less command and paginate the output
 ps -auxf | less
 ```
+---
+#### Display amount of free and used RAM
+```bash
+free -h # `h` option - human readable
+
+               total        used        free      shared  buff/cache   available
+Mem:           2.9Gi       857Mi       1.8Gi       3.6Mi       475Mi       2.1Gi
+Swap:          8.0Gi          0B       8.0Gi
+
+# You can also use `m` to output in MB, or `g` to output in GB.
+# The default is in KB.
+```
+---
+#### Display file's line endings
+```bash
+# Use `cat` utility to check line endings 
+cat -e file.txt
+# For UNIX style LF endings there would be `$` signs.
+# For MS style CR LF endings there would be `^M$`
+
+# Use `file` utility to get file metadata
+file file.txt
+# file.txt: ASCII text => this means the file in unix-style
+# file.txt: ASCII text, with CRLF line terminators => means MS-style
+
+# You can convert ms to unix with `dos2unix` utility and vice versa with unix2dos.
+# Need to apt install them.
+```
+---
+

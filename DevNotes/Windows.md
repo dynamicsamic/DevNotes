@@ -36,3 +36,39 @@ wsl –install # Run as admin via cmd
 >>> New-Item -ItemType <File> -Name <filename>
 ```
 ---
+
+#### Restrict WSL resource usage
+```bash
+# Open WSL and navigate to your windows home directory.
+cd /mnt/c/Users/<username>
+
+# Check if there is a file named `.wslconfig`.
+ls -la | grep '.wslconfig'
+
+# If there is no such file create it.
+touch .wslconfig
+
+# Open it and edit
+nano .wslconfig
+
+# Insert rows below and save changes. 
+
+# Settings apply across all Linux distros running on WSL 2
+[wsl2]
+
+# Limits VM memory to use no more than 4 GB, this can be set as whole numbers using GB or MB
+memory=4GB
+
+# Sets the VM to use two virtual processors
+processors=2
+
+# Sets amount of swap storage space to 8GB, default is 25% of available RAM
+swap=8GB
+
+# Reboot WSL and open again
+powershell: wsl --shutdown
+
+# IMPORTANT
+# The encoding should be UTF-8 and lines should end with LF (not CR LF)
+```
+---
