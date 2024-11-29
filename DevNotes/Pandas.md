@@ -912,3 +912,59 @@ pd.Series([1,3,3,4,5]).rank(method="dense") # [1.0, 2.0, 2.0, 3.0, 4.0]
 pd.Series([1,3,3,4,5]).rank(method="dense", ascending=False) # [4.0, 3.0, 3.0, 2.0, 1.0]
 ```
 ---
+#### Working with dates
+```python
+import pandas as pd
+
+# Conversion to int and str
+dates = pd.date_range('2024-11-21 15:14:23', '2024-11-23 15:14:23', periods=3)
+DatetimeIndex(['2024-11-21 15:14:23', '2024-11-22 15:14:23',
+               '2024-11-23 15:14:23'],
+              dtype='datetime64[ns]', freq=None)
+
+# To int. Converts to timestamp in microseconds (us)
+dates.astype('int64')
+
+# To strings.
+dates.astype('str')
+# OR
+dates.astype(str)
+
+# Convert to string with custom formatting.
+dates.strftime('%d/%m/%Y')
+
+# Convert timestamps to datetimes
+dates.astype('datetime64[us]') # also very frequent `datetime64[ns]`
+
+# Also possible.
+pd.to_datetime(dates, unit='us') # or 'ns', 'ms' ...
+
+# Convert datetime-formatted strings to datetimes.
+pd.to_datetime(string_formatted_dates)
+
+# Series objects have `.dt` attribute that have many convient methods. DateRanges have all theese methods builtin.
+dates = dates.to_frame(index=False, name='date')
+
+# Extract date parts
+dates['date'].dt.year, dates['date'].dt.month, dates['date'].dt.weekday
+
+# Exrtact only date
+dates['date'].dt.date
+
+# Get the weekday name. Without arguments it uses the default locale of the OS.
+# You can change this by passing a spcecific locale. Custom locale should be present on your OS.
+# To list all available locales on Linux use `locale -a`.
+dates['date'].dt.day_name()
+dates['date'].dt.day_name(lcale='C.utf8') # default WSL locale
+
+# Check if a date is the start or end of the month.
+dates['date'].dt.is_month_start
+dates['date'].dt.is_month_end
+
+# Add timezone info to datetimes.
+with_tz = dates['date'].dt.tz_localize('Europe/Moscow')
+
+# Change timezone for timezone aware datetimes.
+with_tz.dt.tz_convert('Europe/Moscow')
+
+```

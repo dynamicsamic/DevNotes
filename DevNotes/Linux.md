@@ -70,6 +70,65 @@ curl -X DELETE http://example.com/products/234944
 curl -H "Authorization: Bearer dfk4k04881fj" https://example.com/products/2344
 ```
 ---
+#### `grep` utility
+```Bash
+# Grep finds lines containing the pattern. It works with files or stdin
+
+# Find pattern in file.
+grep "hello" example.txt
+
+# Find pattern in stdin
+cat example.txt | grep "hello"
+# OR
+echo "hello my friend" | grep "my"
+
+# Find patterns with muiltiple possible characters
+cat example.txt | grep "wor[km]*"
+cat example.txt | grep "wor[a-z]*"
+
+# grep options
+grep --color # sets the color of found patterns to red
+gerp -c # count the number of matched lines
+grep -o # prints only matched strings each on a separate line without the rest of the line 
+grep -n # prefixt each line with a line number
+grep -i # ignore case
+
+# Grep can be piped with other utilities. Here we count number of words that follow pattern `wor[a-z]` caseless
+cat example.txt | grep "wor[a-z]*" -io | wc -w
+
+# To search several pattern add `-E` option and pipe patterns inside of quotes
+cat example.txt | grep -E "hell[a-z]*|wor[a-z]*"
+
+# To perform recursive grepping for a directory use the `-r` option.
+grep -r '.*-my_pattern[.]tct$' .
+
+# You can combine this with `-i` (case insensitive) and `-n` (show line number) options.
+grep -irn '.*-my_pattern[.]tct$' .
+
+# There is also a possibility to include only specific files (or exclude).
+grep -irn '.*-my_pattern' --include ".*txt" .
+grep -irn '.*-my_pattern' --exclude ".*txt" .
+```
+---
+#### `sed` utility
+```Bash
+# sed (stream editor) replaces one string pattern with another
+
+# Basic syntax
+sed "s/<old>/new/"
+
+# sed allows using multiple patterns separated with semicolon
+sed "s/<old>/<new>/; s/<another>/<the_other>/; s/<more>/<less>/"
+
+# By default sed only replaces complete patterns. If a pattern is a part
+# of a longer word, it will leave it as is. To change this behavior
+# use `g` command after the last slash.
+sed "s/<old>/<new>/g"
+
+# Multiple pattern are possible with the `-E` option (for extended regexp)
+sed "s/<old>|<very_old>|<super_old>/<new>/"
+```
+---
 #### Generate `rsa` keys for `ssh` connection
 ```bash
 # The `ssh-keygen` is used to generate public and private keys.

@@ -160,6 +160,14 @@ $variable = 12;
 define("CONSTANT_NAME", "constant_value"); // using `define` function.
 const HELLO_CONSTANT = 11; // using `const` instruction.
 
+// To check if a constant was defined use `defined` function
+if (!defined("MY_CONSTANT")) {
+	define("MY_CONSTANT", 22);
+}
+
+// Delete a variable (does not work with constants).
+unset($variable);
+
 // Global variables are not seen inside functions.
 $a = 10;
 function printa() {
@@ -174,6 +182,53 @@ function printa() {
   echo $a;
 }
 printa(); //=> prints 10;
+
+# Type casting is done by enclosing the resulting type in parens and providing a value, like this: (type) val.
+// Booleans 
+var_dump((bool) "");             // -> false
+var_dump((bool) "Some Text");    // -> true
+var_dump((boolean) "0");         // -> false
+var_dump((bool) "false");        // -> true
+var_dump((bool) 0);              // -> false
+var_dump((bool) 1);              // -> true
+var_dump((bool) -1);             // -> true
+var_dump((bool) null);           // -> false
+var_dump((bool) []);             // -> false
+var_dump((bool) ["hello"]);      // -> true
+
+// Integers
+var_dump((int) false);        // -> 0
+var_dump((integer) true);     // -> 1
+var_dump((int) "-1");         // -> -1
+var_dump((int) "Hello");      // -> 0
+var_dump((int) "12 months");  // -> 12, collects all digits until first non-digit 
+var_dump((int) 12.7);         // -> 12
+var_dump((int) null);         // -> 0
+
+// Float
+var_dump((float) false);      // -> 0
+var_dump((float) true);       // -> 1
+var_dump((float) "-1");       // -> -1
+var_dump((float) "Hello");    // -> 0
+var_dump((float) "2.5 Hour"); // -> 2.5
+var_dump((float) null);       // -> 0
+
+// Strings
+var_dump((string) false);     // -> ""
+var_dump((string) true);      // -> "1"
+var_dump((string) 0);         // -> "0"
+var_dump((string) 1.353);     // -> "1.353"
+var_dump((string) []);        // -> "Array"
+var_dump((string) ["John"]);  // -> "Array"
+var_dump((string) null);      // -> ""
+
+// Arrays
+var_dump((array) false);      // -> [false]
+var_dump((array) true);       // -> [true]
+var_dump((array) 0);          // -> [0]
+var_dump((array) 1.353);      // -> [1.353]
+var_dump((array) "John");     // -> ["John"]
+var_dump((array) null);       // -> []
 ```
 ---
 #### Mathematical operators
@@ -263,6 +318,15 @@ $var .= 'hello' // concat two strings and assign to variable
 
 // Bitwise assignment opeartors.
 &=, |=, ^=, <<=, >>=
+```
+#### Useful constants
+```php
+__FILE__ // path to current file
+__DIR__ // path to directory, where current file located
+__LINE__ // line of code
+
+PHP_VERSION // outputs the php version
+
 ```
 #### Strings
 ```PHP
@@ -550,6 +614,9 @@ $val = array_shift($arr); //=> $val = "hello"
 
 // Remove value from index
 unset($arr[1]); //=> removes value at index(key) 1.
+
+// Reindex array (start indexes from 0 and so on). 
+arary_values($arr);
 
 // When new values added they get key value that is greater than previous
 // maximum key.
@@ -933,5 +1000,12 @@ $contents = file('todo-list.txt');
 foreach ($contents as $task) {
 	echo $task;
 }
+```
+---
+#### Error handling
+```php
+# You can supress non-fatal errors and warnings by prefixing a statement with the `@` operator.
+[1,2,3][10] // - raises warning
+@[1,2,3][10] // - does not raise warning
 ```
 ---
