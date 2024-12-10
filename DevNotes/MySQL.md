@@ -276,6 +276,11 @@ SELECT @@session.sql_mode;
 1 row in set (0.01 sec)
 ```
 ---
+#### Show active connections
+```mysql
+SHOW processlist;
+```
+---
 #### Show current session's warnings
 ```sql
 SHOW WARNINGS;

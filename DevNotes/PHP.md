@@ -145,6 +145,9 @@ print $var;
 $arr = array(1,3,4);
 print_r($arr); //=> Array([0]=>1 [1]=>3 [2]=>4)
 
+// To print a more detailed variable information of arbitrary type use `var_dump` function.
+$var_dump($arr);
+
 // To read input from stdin use `readline`.
 // Input type is inferred automatically.
 $name = readline();
@@ -167,6 +170,9 @@ if (!defined("MY_CONSTANT")) {
 
 // Delete a variable (does not work with constants).
 unset($variable);
+
+// Check if a variable exists and not is not null.
+isset($variable);
 
 // Global variables are not seen inside functions.
 $a = 10;
@@ -435,6 +441,18 @@ switch ($var):
 	default:
 		...;
 endswitch;
+
+// switch satement can also be used to evaluate arbitrary expressions.
+$userId = 22;
+
+switch (getPermission($userId)) {
+	case "admin":
+		...
+	case "moderator":
+		...
+	default:
+		...
+}
 ```
 ---
 #### Loops
@@ -534,8 +552,28 @@ endforeach;
 ```php
 // Integer division (no remainder) functions
 intdiv(8, 3); //=> 2
-round(8 / 3); //=> 3
-floor(8 / 3); //=> 2
+
+// Round numbers (int, float).
+$low = 22.000001;
+$mid = 22.545;
+$high = 22.999999;
+
+// `floor` rounds down to nearest integer.
+floor($high); //=> 22
+
+// `ceil` rounds up to nearest integer.
+ceil($low); //=> 23
+
+// `round` allows to specify how many numbers to save.
+round($mid); //=> 22
+round($mid, 2); //=> 22.55
+round($mid, -1); //=> 20
+
+// `round` also allows to specify how to treat 4 and 5 when rounding.
+PHP_ROUND_HALF_UP // the last 5 is rounded up, default
+PHP_ROUND_HALF_DOWN // the last 6 is rounded up
+PHP_ROUND_HALF_EVEN // 1.5 and 2.5 round to 2
+PHP_ROUND_HALF_ODD // 1.5 rounds to 1 and 2.5 rounds to 3
 ```
 ---
 #### Arrays
@@ -626,8 +664,26 @@ print_r($arr); //=> [7 => 1, 8 => 99];
 
 // Array destructuring
 $arr = [1, 2, 3];
-[$a, $b, $c] = $var;
+[$a, $b, $c] = $arr;
 echo "$a-$b-$c"; //=>1-2-3
+
+// Array destructuring does not rquire to use all array items, you can assign some of the items (but sequentially).
+$arr = [1, 2, 3, 4];
+[$a, $b] = $arr; // $a = 1, $b = 2
+[$a, $_, $_, $b]; // $a= 1, $b = 4
+
+// The same result can be achieved with `list` function.
+list($a, $_, $b, $_); // $a = 1, $b = 3 
+
+// For destructuring string-key arrays you need to reference its keys.
+$arr = ['a' => 22, 'b' => 59, 'c' => '441'];
+['a' => $a, 'b' => $b, 'c' => $c] = $arr; // $a = 22, $b = 59, $c = '441'
+
+// Referencing string-key arrays without key names raises warning.
+[$a, $b, $c] = $arr; // THIS WON'T WORK!
+
+// Mixing key names and just variables raises fatal error.
+[$a, 'b' => $b, 'c' => $c] = $arr; // THIS WON'T WORK!
 
 // Join array values into one string with `implode`.
 // Implode signature `implode(delim:str, arr:array)`.
@@ -644,6 +700,69 @@ count($arr); // => 4
 
 // Sum elements in array
 array_sum([1,2,3,4]); //=> 10
+
+// Check if array key exists with array_key_exists($key, $array) function.
+array_key_exists(1, [1,2,3,4]) // true
+array_key_exists(99, [1,2,3,4]) // false
+array_key_exists(4, [1,2,3,4,null]) // true, works even for nulls
+array_key_exists('a' ['a'=>1,'b'=>2,'c'=>3, 'd'=>null]) // works with char keys
+
+// Filter array items with `array_filter` function.
+// Function signature: 
+// array_filter(array $array, callable $filterFunc = null, int $mode = 0): array.
+// If `filterFunc` is not provided then function filters out all falsy values.
+array_filter([0, 1, 2, 3, null, false, []]); //=> [1,2,3]
+
+// if provided array_filter will apply `filterFunc` to all array elements, creating new array that does not contain any element that that `filterFunc` returned true for.
+array_filter([0, 1, 2, 3, null], fn($elem) => $elem > 1); // [2, 3]
+array_filter([0, 1, 2, 3, null], fn($elem) => $elem % 2 !== 1); // [2, 4, null]
+
+// Reset array keys after filtering.
+array_values(array_filter([1,3,5,7,2,4], fn($elem) => $elem % 2 !== 1));
+
+// The `mod` parameter allows to change the behaviour of the function and apply filtering to key or both keys and values. Defaults to 0, which means - only values.
+
+// Apply a function to array items with `array_map`.
+// Function signature:
+// array_map(callable $mapFunc, array $array, array ...$arrays): array.
+array_map(fn($item) => $item ** 2, [1,2,3,4]); // [1, 4, 9, 16]
+array_map(fn($elem) => strtoupper($elem), ["hello", "world"]); // ['HELLO', 'WORLD']
+
+// Use multiple values from multiple arrays in your mapFunc.
+$firstNames = ["Sam", "Bob", "Jane"];
+$lastNames = ["Smith", "Dow", "Jackson"];
+array_map(
+	fn($firstName, $lastName) => $firstName." ".$lastName, 
+	$firstNames, 
+	$lastNames
+); // [Sam Smith, Bob Dow, Jane Jackson]
+
+// Merge multiple arrays into single one with `array_merge.
+// Function signature: array_merge(array ...$arrays): array.
+// Values with numeric keys are appended to the first array.
+array_merge([1,2,3], [4,5], [6]);// [1, 2, 3, 4, 5, 6]
+
+// Values with identical string keys are overwritten by the latter ones.
+array_merge(["one"=>1, "two"=>2], ["one"=>"ONE", "three"=>3], ["one"=>"ENO"]);
+// [one => ENO, two => 2, three => 3]
+
+// PHP has multiple functions for sorting arrays. Arrays are sorted inplace.
+// sort() and rsort() sort arrays in ascending or descending order, but reindex the array.
+$arr = [5, 1, 2];
+sort($arr);
+print_r($arr); // [0=>1, 1=>2, 2=>5]
+
+// This approach can cause problems, with string keys.
+$arr = ["a"=>23, "b"=>2];
+sort($arr);
+print_r($arr); // [0=>2, 1=>23]
+
+// To avoid reindexing use asort() or arsort()
+$arr = ["a"=>23, "b"=>2];
+sort($arr);
+print_r($arr); // [b=>2, a=>23]
+
+// If you want to sort by keys use ksort() or krsort().
 ```
 ---
 #### Pass by reference
@@ -761,7 +880,10 @@ function myFunc($arr = ["one", "two"], $mod = NULL)
 function myFunc(array $arr): integer
 
 // Union types are allowed since version 8.3
-function myFunc(float | int $var): float | int
+function myFunc(float|int $var): float|int
+
+// Type hinting for variadic functions also available
+function myFunc(int|float ...$args)
 
 // Array unpacking in function call
 function myFunc($a, $b)
@@ -781,6 +903,66 @@ $var = myFunc(param1: 22, 11); // Throws error, named argument cannot be
 $var = myFunc(11, param1: 22); // Throws error, value 11 has already been
 // assigned to parameter `param1`, so calling `param: 22` will try to redefine
 // this assignment which is prohibited.
+
+// You can save local variables' states between function calls.
+// This is called `static varaible`. To preserve its value, you should always return it.
+function myFunc() 
+{
+	static $myVar = 22;
+	return $myVar++;
+}
+
+echo myFunc(); # 22
+echo myFunc(); # 23
+echo myFunc(); # 24
+
+// Unlike Python, in PHP regular functions cannot be used directly as values. 
+// They need to be wrapped in quotes.
+function foo($val) {
+	...
+}
+
+function bar($val, $callback) {
+	...
+}
+
+echo var(1, 'foo'); // function name wrapped in single quoters.
+
+// Not super convinient. To overcome this inconvinience anonymous functions can be used.
+// Anonymous functions can be created similar to JavaScript.
+// You assign a function expression to a variable. Hence you need to end you function expression with semi-colon.
+$sum = function($a, $b) {
+	return $a + $b;
+};
+
+// Now you can call this variable or pass it to another function.
+$sum(1,2);
+
+// Anonymous funcions can have limited access to global scope by the use of `use` keyword. This keyword prevents functions from mutatint global variables.
+// List global variables in use keyword parens.
+$modificator = 32;
+
+$sum = function($a, $b=1) use($modificator) {
+	return $a + $b + $modificator; 
+};
+
+// Use $sum variable as a callback in another function.
+function bar($val, $callback) {
+	return $callback($val);
+}
+
+bar(1, $sum);
+
+// The ultimate form of anonymous function is arrow functions.
+$sum = fn ($a, $b=1) => $a + $b;
+
+// Arrow functions have builtin limited access to global scope.
+$sum = fn ($a, $b=1) => $a + $b + $glob; 
+
+// Funcions as arguments can be type annotated with `callable` type.
+function applyCallaback(int|float $val, callable $callback): int|float {
+	return $callaback($val);
+}
 ```
 ---
 #### Classes and objects
@@ -1000,6 +1182,39 @@ $contents = file('todo-list.txt');
 foreach ($contents as $task) {
 	echo $task;
 }
+
+// There are other functions for working with files and directories.
+
+// View directory contents.
+scandir('dir_name');
+scandir(__DIR__); // current directory
+
+// Create a directory
+mkdir('new_directory');
+
+// Remove empty directory
+rmdir('new_directory');
+
+// Create a file
+touch('my_file.txt');
+
+// Check if a file exists
+file_exists('my_file.txt');
+
+// Add contents to a file
+file_put_contents('my_file.txt', 'These are the contents!\nGoodgye');
+
+// View file contents
+file_get_contents('my_file.txt');
+
+// View file size in bytes
+filesize('my_file.txt')
+
+// Sometimes the file size may be cached in previous operations. To get actual file size it is better to drop cache before measuring the file size.
+clearstatcache();
+
+// Delete file
+unlink('my_file.txt')
 ```
 ---
 #### Error handling
@@ -1007,5 +1222,45 @@ foreach ($contents as $task) {
 # You can supress non-fatal errors and warnings by prefixing a statement with the `@` operator.
 [1,2,3][10] // - raises warning
 @[1,2,3][10] // - does not raise warning
+```
+---
+#### Mixing HTML with PHP code
+```php
+// Sometimes to get html highlighting we can mix it with PHP code like this.
+<?php
+$value = 10;
+
+if($value === 11): ?>
+	<h1>Hello world!</h1>
+<?php elseif($value === 12): ?>
+	<h1>Hello guys!</h1>
+<?php else: ?>
+	<h1>Hello srtanger!</h1>
+<?php endif; ?>
+```
+---
+#### Sleeping
+```php
+sleep(10) // result in seconds
+```
+---
+#### Using other files from within current file
+```php
+// nav.php
+<nav>
+	<a href = "/">Home Page</a>
+	<a href = "/about.php">About Page</a>
+</nav>
+
+// index.php
+<?php include "nav.php" ?> 
+Home Page
+
+// If you reference one file in multiple parts of your php code use `include_once` to not load the contents twice.
+
+// Also `require` and `require_once` are possible.
+// about.php
+<?php require "nav.php" ?>
+About Page
 ```
 ---

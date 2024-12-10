@@ -111,6 +111,12 @@ df.iloc[0,0]
 
 # You can convert a Series object to DataFrame
 df["product_name"].to_frame()
+
+# Change the output that displayed on the screen.
+pd.set_option('display.min_rows', 100)
+pd.set_option('display.max_rows', 100)
+pd.set_option('display.max_columns', 100)
+pd.set_option('display.min_columns', 100)
 ```
 ---
 #### Manipulating columns and values
@@ -511,15 +517,45 @@ empl["salary"].mask(empl["pos_name"] == "Директор магазина", 100
 ---
 #### Concatenating two dataframes
 ```python
-df1 = pd.concat([df1, df2], axis=0)
+# Concatenating multipel dataframes in Pandas is like using UNION ALL operator for multiple queries in SQL.
 
-# Resulting dataframe will probably contain non unique index value. This will prevent you from saving you dataframe into a file resulting in error: ValueError: DataFrame index must be unique for orient='columns'.
-# To overcome this you can:
-# - drop index column at all, if you don't need it.
+# To concatenate multiple dataframes use.
+df = pd.concat([df1, df2])
+
+# Note that resulting dataframe will probably contain non unique index value. This will prevent you from saving you dataframe into a file resulting in error: ValueError: DataFrame index must be unique for orient='columns'.
+# To overcome this you can create new index, ignoring subdataframes' indexes.
+df = pd.concat([df1, df2], ignore_index=True)
+
+# Alternatively you can drop index column before concatenation, if you don't need it.
 df1.reset_index(drop=True, inplace=True)
 
-# - reset the index to recalculate it from scratch
+# Or reset the index for one or more dataframes.
 df.reset_index(inplace=True)
+
+# You can add additional index keys for each dataframe, it will be displayed before numeric index to mark which part of the concatenated dataframe came from.
+df = pd.concat([df1, df2], keys=['frame1', 'frame2'], ignore_index=True)
+
+# You can also increase index readability like so
+df = (
+	  pd.concat([df1, df2], keys=['frame1', 'frame2'], ignore_index=True)
+	  .reset_index(level=0, names='indexName')
+)
+
+# Pandas can also merge dataframes similar to how SQL joins tables.
+# Here is how to perform jeft join.
+df1.merge(df2, on='CommonColumn', how='left')
+
+# Right join
+df1.merge(df2, on='CommonColumn', how='right')
+
+# Outer join
+df1.merge(df2, on='CommonColumn', how='outer')
+
+# Inner join
+df1.merge(df2, on='CommonColumn', how='inner')
+
+# When you want to merge dataframes by columns that have different names, there may be multiple options.
+# First 
 ```
 ---
 #### Working with values
@@ -964,7 +1000,69 @@ dates['date'].dt.is_month_end
 # Add timezone info to datetimes.
 with_tz = dates['date'].dt.tz_localize('Europe/Moscow')
 
-# Change timezone for timezone aware datetimes.
+# Change timezone for timezone aware datetimes. Changes the time if timezones differ.
 with_tz.dt.tz_convert('Europe/Moscow')
 
+# Rounding datetimes.
+# Trim time part from datetime with `.noramilze` method.
+dates['date'].dt.normalize()
+
+# Round down to nearest datetime with `floor` method.
+dates['date'].dt.floor(freq='h') # freq can be h, 2h, d ...
+
+# Round up to nearest datetime with `ceil` method.
+dates['date'].dt.ceil(freq='h') # freq can be h, 2h, d ...
+
+# Round more precisely with `round` method.
+dates['date'].dt.round(freq='2d') # freq can be h, 2h, d ...
+
+# The behaviour of round function may be unpredictable when using digit modificators.
+
+# Format dates and datetimes into strings with `strftime` method.
+# This is similar to strftime from builtin python datetime library.
+dates["date"].dt.strftime("%d/%m/%Y %H:%M:%S")
+
+# Statistics functions also work with datetimes.
+dates["date"].mean(); dates["date"].median(); dates["date"].std(); ...
+
+# The same things can be achieved by converting datetimes into integers, applying mathematical functions and converting integers to datetimes back.
+dates["date"].astype("int64").mean().astype("int64").astype("datetime64[us]")
+
+# You can manually create pandas datetimes.
+pd.Timestamp('2024-01-01 20:42:34')
+# OR
+pd.Timestamp(year=2024, month=1, day=1, hour=20, minute=42, second=34)
+
+# Timestamps have all the `.dt` object methods and attributes.
+ts = pd.Timestamp('2024-01-01 20:42:34')
+ts.month, ts.year, ts.month_name(), ts.round('2h')...
+
+# Datetime methods that work only with indexes.
+# `asof(date)` return the last non-null value before provided date.
+dates["values"] = ["one", "two", "three"]
+dates.set_index('date').asof('2024-11-23 15:14:22') # before the last row
+
+# `at_time(time)` returns rows with indexes that have the exact same time, the date ignored.
+dates.set_index('date').at_time('15:14:23') # returns all rows
+dates.set_index('date').at_time('00:00') # returns empty dataframe
+
+# `between_time(start_time, end_time)` returns all rows with indexes that have time between start_time and end_time, the date ignored, both ends included.
+print(dates.set_index('date').between_time('15:14:23', '15:14:23')) # returns all rows.
+print(dates.set_index('date').between_time('15:14:22', '15:14:22')) # returns empty dataframe.
+
+# To perform addition and substraction of dates us pd.Timedelta.
+delta = pd.Timedelta("2h")
+# OR
+delta = pd.Timedelta(hours=2)
+
+# Create calculated timedeltas.
+pd.Timedelta(minutes=20) * 10 # 200 minues or 3hr 20mins
+
+# Create timedelta sequences.
+pd.Timedelta(np.arange(10), "hours")
+
+# Perform dataframe operations with timedeltas
+dates['date'] + pd.Timedelta(days=2)
+dates['date'] - pd.Timedelta(days=2)
 ```
+---
