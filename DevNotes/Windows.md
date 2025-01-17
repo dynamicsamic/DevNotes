@@ -72,3 +72,17 @@ powershell: wsl --shutdown
 # The encoding should be UTF-8 and lines should end with LF (not CR LF)
 ```
 ---
+#### Get RAM info
+```markdown
+- Run command prompt as admin
+- Type in `wmic memorychip list full` or `wmic memorychip get devicelocator, memorytype, formfactor`
+```
+---
+#### Check specific port usage
+```powershell
+Get-Process -Id (Get-NetTCPConnection -LocalPort <YourPortNumberHere>).OwningProcess
+Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
+-------  ------    -----      -----     ------     --  -- -----------
+    519     302   600300      63236              5308   0 mysqld
+```
+---

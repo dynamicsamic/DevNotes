@@ -456,6 +456,15 @@ def main():
 		logger.error(err)
 		cli.print_help() # print help message to user
 		cli.exit(status=1, message="Error occured")
+
+
+# If you need to collect arbitrary amount of options that may contain dashes and double dashes (which in argparse is considered an option itself), you can use the REMAINDER constant.
+cli = ArgumetnParser()
+cli.add_argument("required") # this is a regular positional argument
+cli.add_argument("-args", nargs=argparse.REMAINDER)
+
+# Now you are able to do this
+cli.parse_arguments(['value', '-a', '--d', 'optional']) # the -args option will receive ['-a', '--d', 'optional']
 ```
 ---
 #### `uv` dependency tool
@@ -646,5 +655,15 @@ with open('file.json', 'w+', encoding='utf-8') as f:
 ---
 #### Working with xml files
 ```python
+```
+---
+#### Pretty print contents of a `defaultdict`
+```python
+from collections import defaultdict
+from pprint import pprint
+
+d = defaultdict(list)
+d["list"].append("values")
+pprint(dict(d))
 ```
 ---

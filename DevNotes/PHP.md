@@ -171,7 +171,7 @@ if (!defined("MY_CONSTANT")) {
 // Delete a variable (does not work with constants).
 unset($variable);
 
-// Check if a variable exists and not is not null.
+// Check if a variable exists and is not null.
 isset($variable);
 
 // Global variables are not seen inside functions.
@@ -334,6 +334,33 @@ __LINE__ // line of code
 PHP_VERSION // outputs the php version
 
 ```
+---
+#### Commenting PHP code
+```php
+// Documenting PHP code is done using specified format named `docblocks`.
+/**
+ * Sums two numbers, adds to array if provided.
+ * 
+ * Always returns a value. Array is passed by reference if provided.
+ * 
+ * @param int|float $a   The first number.
+ * @param int|float $b   The second number.
+ * @param ?array &$array Optional. The array that the sum will be appended to.
+ *                       Defaults to null.
+ * 
+ * @return int|float     Sum of two numbers.
+ */
+function sum(int|float $a, int|float $b, ?array &$array = null): int|float {
+    $result = $a + $b;
+    
+    if ($array) {
+        $array[] = $result;
+    }
+    return $result;
+}
+
+```
+---
 #### Strings
 ```PHP
 // Strings can be enclosed in either single or double qoutes.
@@ -382,6 +409,11 @@ echo gettype($var); //=> string
 
 // Get string length
 echo strlen("hello"); //=> 5
+
+// Convert string into a list of chars with `str_split()` function.
+// Function signature: str_split(string $string, int $chunkSize = 1)
+str_split('hello world'); // ['h', 'e', 'l', 'l', 'o' ..., 'd']
+str_split('hello world', 2); // ['he', 'll', 'o ', 'wo', 'rl', 'd']
 ```
 ---
 #### Object type info
@@ -746,6 +778,14 @@ array_merge([1,2,3], [4,5], [6]);// [1, 2, 3, 4, 5, 6]
 array_merge(["one"=>1, "two"=>2], ["one"=>"ONE", "three"=>3], ["one"=>"ENO"]);
 // [one => ENO, two => 2, three => 3]
 
+// Create array slices with `array_slice` function.
+// Function signature: array_slice(array $array, int $startIndex, ?int $sliceSize = null, bool $preserveKeys = false)
+$arr = [1,2,3,4,5,6];
+array_slice($arr, 0, 3); // [1,2,3], start from index 0, collect 3 items
+array_slice($arr, 1, 2); // [2,3], start from index 1, collect 2 items
+array_slice($arr, 3); // [4,5,6], start from index 3, collect all
+array_slice($arr, 3, null, true); // start from index 3, collect all, copy corresponding indexes to resulting array. 
+
 // PHP has multiple functions for sorting arrays. Arrays are sorted inplace.
 // sort() and rsort() sort arrays in ascending or descending order, but reindex the array.
 $arr = [5, 1, 2];
@@ -759,10 +799,16 @@ print_r($arr); // [0=>2, 1=>23]
 
 // To avoid reindexing use asort() or arsort()
 $arr = ["a"=>23, "b"=>2];
-sort($arr);
+asort($arr);
 print_r($arr); // [b=>2, a=>23]
 
 // If you want to sort by keys use ksort() or krsort().
+
+// Generate sequences with `range()` function.
+range('A', 'Z'); // ['A', 'B', 'C'..., 'Z']
+range(1, 10); // [1, 2, 3..., 10]
+range(1, 10, 3); // [1, 4, 7, 10]
+range(10, 1, -1); // [10, 9, 8..., 1]
 ```
 ---
 #### Pass by reference
@@ -973,8 +1019,8 @@ class MyClass
 
 // Attributes and methods in classes can be public, protected and private:
 //     - public - available for everyone
-//     - protected - only available inside this class and its subclasses
-//     - private - only available inside this class
+//     - protected - available for reading and modifying inside this class and its subclasses
+//     - private - only available inside this class for modifying and available for reading for subclasses.
 // By defalut all attributes and methods are public.
 class Car
 {
@@ -1001,11 +1047,12 @@ echo $myCar->vin; //=> Error
 $myCar->maker = 'NewCar Inc.';
 echo $myCar->maker; //=> 'NewCar Inc.'
 
-// Static attributes and methods are avaialable via double-colon `::` operator.
+// Static attributes, constants and methods are avaialable via double-colon `::` operator.
 class Car
 {
+	public const WEHICLE_TYPE = 'Car';
 	public static $maker = 'Car Inc.';
-	public static function blink()
+	public static function blink();
 	{
 		echo "blink-blink";
 	}
@@ -1042,8 +1089,8 @@ $myCar->drive(); //=> `driving Car Inc. car with Engine Inc. engine.`
 // It is also possible to provide default values for constructor parameters
 class Car
 {
-	public $maker;
-	public $engine;
+	public string $maker;
+	public stirng $engine;
 	
 	function __construct($maker = 'Car Inc.', $engine = 'Engine Inc.')
 	{
@@ -1069,7 +1116,50 @@ class FileHandler
 
 }
 
+// PHP 8 introduced a shorthand class definition similar to Python's dataclasses.
+// You need to add access modifiers to function parameters.
+// For simple cases function body may be left empty.
+class Client
+{
+	public function __construct(
+		public string $name,
+		public int $age
+	) {
+	}
+
+}
+
+// You can use a technique called `method chaining` to chain method calls.
+// The main part of this technique is to return the instance in a method.
+class Account
+{
+	public function __construct(
+		public string $name,
+		public int $balance
+	) {
+	}
+
+	public function deposit(int $amount)
+	{
+		$this->balance += $amount;
+		return $this;
+	}
+
+	public function sendUpdatedBalanceNotification()
+	{
+		echo "Your balance was updated to: $this->balance, $this->name";
+	}
+}
+
+$johnAccount = new Account('john', 200);
+$johnAccount
+  ->deposit(100)
+  ->deposit(100)
+  ->sendUpdatedBalanceNotification(); // "Your balance was updated to: 400, john"
+
+
 // Subclasses are defined via the `extends` keyword.
+// A subclass can only inherit from one superclass. Multiple inheritance prohibited.
 class Animal
 {
 	public $name;
@@ -1104,9 +1194,71 @@ $myDog->raiseVoice(); //=> 'Bark!'
 // $privateVar variable is not available in subclass;
 echo $myDog->privateVar; // => Raises `Undefined property` warning
 
+// You can access parent methods via `parent` keyword
+class Dog extends Animal
+{
+	public function __construct(string $name, string $familyRole)
+	{
+		parent::__construct($name); // calling parent constructor after child constructor code will override it.
+		$this->$familyRole = $familyRole;
+	}
+
+	public function raiseVoice()
+	{
+		parent::raiseVoice();
+		echo "Bark!";
+	}
+}
+// Note: if you overriding a parent method (except for the __construct()), you have to keep child method's signature the same as parent method's signature.
+
+// To prevent a class from modifying or inheriting from use `final` keyword.
+final class MyClass... // Can't inherit from it.
+
+// When used with methods `final` keyword keeps parent methods from overriding by children.
+class MyClass
+{
+	final public function bar()
+	{
+	}
+}
+// Now overriding it in subclasses will be prohibited.
+
+// Abstract classes are created by prefixing the access modifier with the `abstract` keyword.
+// Abstract classes serve as blueprints for its subclasses. They can have both abstract and concrete methods. All abstract methods should be implemented by subclasses. You can't instatiate an abstract class.
+// Abstract classes are used, when there is a clear parent->child relationship between classes and subclasses. If you want to inherit properties for unrelated classes it is better to use interfaces.
+abstract class Electronics
+{
+	// class const will be passed to subclass directly
+    public const TYPE = "Electronics";
+    public string $producer;
+
+	// regular __construct() method will be available for overriding 
+    public function __construct($producer) {
+        $this->producer = $producer;
+    }
+
+	// this abstact function should be implemented by subclasses
+    abstract public function turnOn();
+}
+
+class MicrowaveOven extends Electronics
+{
+	// Concrete implementation of an abstract method
+    public function turnOn()
+    {
+        echo "Microvawe was turned on";
+    }
+}
+
+$m = new MicrowaveOven("LG");
+$m->turnOn(); // "Microvawe was turned on"
+echo $m::TYPE; // "Electronics"
+
+
 // Abstract classes or generics can be implemented with interfaces.
 // Interface is a collection of methods that define the behaviour of all
 // the classes that implement this iterface without method details.
+// Interface can not have variables, but can have constants.
 interface Shape
 {
 	public function draw();
@@ -1151,6 +1303,166 @@ $myCircle->draw(); //=> 'Drawing a circle'
 $myCircle->calculateArea(); //=> 'Calculate area'
 $myCircle->setRadius(11); //=> 'set radius to 11;'
 echo $myCircle->getRadius(); //=> 11
+
+// If you start with declaring an null stub instead of a class instance, you can use null-safety operator.
+class MyClass
+{
+	public function hello()
+	{
+		return 'hello';
+	}
+}
+
+function foo(mixed $arg)
+{
+	$instance = null; // start with empty stub
+	
+	if ($arg == 'create') {
+		$instance = new MyClass(); // assign a new class instance
+	}
+
+	// Now we can have both null and not-null $instance variable. To avoid warning when calling the `hello` method use the `?` operator.
+	$result = $instance?->hello();
+	if (!$result) {
+		throw new Error('$result not set');
+	}
+}
+
+// Create aliases for classes
+use DateTime as DT
+$d = new DT();
+
+// PHP have a rare used feature - Anonymous classes.
+// It is used, when you have a throw away single-use class, typically to be supplied to another class. It is not a feature someone would use to often.
+// Consider a case, when we have a FileProcessor class that expets a FileWriter iterface. If this interface implementation is used only once you may omit creation of a dedicated class and supply an anonymous class to the FileProcessor.
+// This may be usefull for testing.
+interface FileWriter
+{
+    public function write(string $file, string $data);
+}
+
+class FileProcessor
+{
+    public FileWriter $writer;
+    public function __construct($writer) {
+        $this->writer = $writer;
+    }
+    
+    public function process(string $file, string $data) {
+        echo "Processing a file...\n";
+        echo $this->writer->write($file, $data);
+    }
+}
+
+$procr = new FileProcessor(
+	// Create a class and an instance at the same time and supply it to caller.
+	new class() implements FileWriter {
+    public function write(string $file, string $data) {
+		    echo "Writing data `{$data}` to file `{$file}`...";
+	    }
+    }
+);
+$procr->process("users.txt", "Id=123, Name='Bob'"); // Processing a file...
+// Writing data `Id=123, Name='Bob'` to file `users.txt`...
+
+
+// You can iterate through object's public properties.
+class MultiProp {
+	public int $intProp;
+	public string $strProp;
+	public bool $boolProp;
+	public array $arProp;
+	
+	public function __construct() {
+		$this->intProp = 4;
+		$this->strProp = 'Hello World!';
+		$this->boolProp = true;
+		$this->arProp = [74, 21, 85];
+	}
+}
+
+$m = new MultiProp();
+foreach($m as $prop) {
+	var_dump($prop);
+}
+/*
+	int(4)
+	string(12) "Hello World!"
+	bool(true)
+	array(3) {
+	  [0]=>
+	  int(74)
+	  [1]=>
+	  int(21)
+	  [2]=>
+	  int(85)
+	}
+*/
+```
+---
+#### Iterator interface
+```php
+// PHP has a builtin interface for creating iterable classes called `Iterator`.
+/* A class that implements the Iterator interface is called `iterable`.
+   Every iterable should implement 5 required methods from Iterator interface:
+  - key(): mixed - returns current key;
+  - current(): mixed - returns current element;
+  - next(): void - switch state to the next element;
+  - valid(): bool - determine should it iterate next or stop;
+  - rewind(): void - return iterator to its initial state;
+
+When you iterate through iterable object PHP performs next steps:
+  1. Calls `rewind()` method to start from intial state.
+  2. Calls `valid()` method before each iteration to determine if current iteration should be conducted.
+  3.1. If valid() returns `false`, terminates the loop.
+  3.2. If valid() returns `true`, calls the `key()` and `current()` methods.
+  4. Evaluates loop body.
+  5. Calls `next()` method to switch state.
+  6. Repeats the process from step 2.
+*/
+
+// A simple example of ListIterator that lets you iterate through array elements.
+class ListIterator implements Iterator
+{
+	protected array $items;
+	protected int $idx;
+	
+	public function __construct(...$items) {
+		$this->items = $items;
+		$this->idx = 0;
+	}
+	
+	public function key(): mixed {
+		return $this->idx;
+	}
+	
+	public function current(): mixed {
+		return $this->items[$this->idx];
+	}
+	
+	public function next(): void {
+		++$this->idx;
+	}
+	
+	public function valid(): bool {
+		return $this->idx < count($this->items);
+	}
+	
+	public function rewind(): void {
+		$this->idx = 0;
+	}
+	
+}
+
+$it = new ListIterator('a', 'b', 'c');
+foreach($it as $key=>$value) {
+	echo "$key => $value\n";
+}
+/*
+0 => a
+1 => b
+2 => c
+*/
 ```
 ---
 #### Working with files
@@ -1264,3 +1576,219 @@ Home Page
 About Page
 ```
 ---
+#### Random values
+```php
+// Generate arbitrary random number.
+rand();
+# OR
+mt_rand();
+
+// Generate random number between boundaries (both included).
+rand(0, 10);
+# OR
+mt_rand(0, 10);
+
+// Shuffle an array inplace.
+$ar = range(0, 10);
+shuffle($ar);
+print_r($ar); // [8, 9, 1, 3, 2...] 
+```
+---
+#### Handling exceptions
+```php
+// Generating a new exception is done by using the `throw` keyword and supplying it a new Exception object (or its subclasses).
+// Here we throw exception if array length is 0.
+class ArrayPrinter
+{
+	public static function print_ar(array $array): void {
+		if (count($array) === 0) {
+			throw new \Exception('Array must not be empty.');
+		}
+		print_r($array);
+	} 
+}
+
+ArrayPrinter::print_ar([]);
+
+// There are also more specific exceptions that the parent \Exception class.
+// Here we could use the `InvalidArgumentException`.
+...
+throw new \InvalidArgumentException('Array must not be empty.');
+...
+// Other builtin exceptions
+- BadFunctionCallException
+- DomainException
+- InvalidArgumentException
+- LengthException
+- LogicException
+- OutOfBoundsException
+- OutOfRangeException
+- OverflowException
+- RangeException
+- RuntimeException
+- UnderflowException
+- UnexpectedValueException
+
+// To create a custom exception you can subclass from generic Exception or any other exception class.
+// We can create a custom exception to handle the previous empty array case.
+class EmptyArrayException extends \Exception {}
+
+// Now we can use it just like previous exceptions.
+...
+throw new EmptyArrayException('Array must not be empty.');
+...
+
+// If the error message won't change depending on the situation, it can be embeded into the class definition.
+// This will eliminate the need to pass the same message every time the error would occur, making exception handling more DRY.
+class EmptyArrayException extends \Exception 
+{
+	protected $message = "Array must not be empty."; // No type annotation!
+}
+
+// Now we omit the exception message but the result stays the same.
+...
+throw new EmptyArrayException();
+...
+
+// Exception handling is done by try->catch operators.
+// Code that is expected to fail is placed in the body of try operator.
+// catch block accepts an exception class and a variable name to store the created exception object. 
+try {
+	ArrayPrinter::print_ar([]);
+} catch (EmptyArrayException $e) {
+	echo "Returning back to main menu";	
+}
+
+// Multiple exception classes are combined using the pipe operator.
+try {
+	ArrayPrinter::print_ar([]);
+} catch (EmptyArrayException|\InvalidArgumentException $e) {
+	echo "Returning back to main menu";	
+}
+
+// There may be multiple catch blocks.
+try {
+	ArrayPrinter::print_ar([]);
+} catch (EmptyArrayException|\InvalidArgumentException $e) {
+	echo "Returning back to main menu";	
+} catch (\Exception $e) {
+	$e->getMessage(); // you can access exception object properties.
+	echo "Terminating session.";
+}
+
+// There also a `finally` statement to execute code no matter if the exception would be thrown or not.
+try {
+	ArrayPrinter::print_ar([]);
+} catch (EmptyArrayException|\InvalidArgumentException $e) {
+	echo "Returning back to main menu";	
+} catch (\Exception $e) {
+	$e->getMessage(); // you can access exception object properties.
+	echo "Terminating session.";
+} finally {
+	echo "Program finished.";
+}
+```
+---
+#### Working with dates and time
+```php
+// Get current timestamp.
+time(); // int(1736431499)
+
+// Create a timestamp with `mktime` function.
+// `mktime` signature: mktime(int $hours, ?int minutes, ?int seconds, ?int $month, ?int $date, ?int $year): int.
+mktime(20, 15, 10, 1, 15, 2025); // 1736972110 === 2024-01-15 20:15:10
+
+// Convert a timestamp to a string-based date representation with `date` function.
+/* `date` function signature: date(string $format, ?int $timestamp=null): string.
+- `$format` parametr defines the output format and must contain specific modifiers (https://www.php.net/manual/en/datetime.format.php).
+- `$timestamp` parametr should contain a valid timestamp. If no timestamp provided, current timestamp (aka `time()`) will be used.*/
+
+date('Y-m-d'); // '2025-01-09', current date, ISO formatted
+date('D F y'); // 'Thu January 25', current date, American style
+date('D F y', 1735321499); // 'Fri December 24', a moment in the past, American
+
+/* Creating datetime objects with `DateTime` class. */
+// A datetime object for current timestamp can be created without arguments.
+$date = new DateTime();
+var_dump($date); /* 
+object(DateTime)#3 (3) {
+  ["date"]=>
+  string(26) "2025-01-09 14:48:31.320372"
+  ["timezone_type"]=>
+  int(3)
+  ["timezone"]=>
+  string(3) "UTC"
+}
+-- Note! DateTime object cannot be converted to string out of the box, so using `echo` will cause an exception. To print a datetime use `var_dump` function.
+*/
+
+// To create a specific datetime object pass a datetime-formatted string.
+// The formatting will be implicitly calculated by PHP.
+new DateTime("2025-01-09"); // "2025-01-09 00:00:00.000000", ISO formatted
+new DateTime("01/09/2025"); // "2025-01-09 00:00:00.000000", American style
+
+// To provide your own format use the DateTime::createFromFormat() method.
+$weirdFormat = 'Y__m..d'
+DateTime::createFromFormat($weirdFormat, '2025_01.09'); // "2025-01-08 15:09:16.000000" NOTE: the time part is taken from current time, it's not 0
+// Also note, that if datetime does not follow the format string `false` is returned.
+
+// By default a datetime object is created with the UTC timezone.
+// To change the timezone, create a `DateTimeZone` object and pass it when creating a DateTime object.
+$tz = new DateTimeZone('Europe/Moscow');
+$date = new DateTime("2025-01-09 10:00:25", $tz);
+// OR
+$date = DateTime::createFromFormat('Y--m--d H:i:s', "2025--01--09 10:00:25", $tz);
+var_dump($date); // "2025-01-09 10:00:z25.000000", timezone="Europe/Moscow"
+
+// List of timezones is predefined in PHP.
+
+// To adjust datetime to a different timezone use the `setTimeZone()` method.
+$tz = new DateTimeZone('Europe/Moscow');
+$date = new DateTime("2025-01-09 10:00:25", $tz);
+$date->setTimeZone(new DateTimeZone('Europe/Berlin')); // "2025-01-09 08:00:25.000000", timezone="Europe/Berlin"
+
+// It is also possible to change the date or time parts of a datetime object.
+$date = new DateTime("2025-01-09 10:00:25");
+$date->setDate(2024, 12, 24); // "2024-12-24 10:00:25.000000"
+$date
+	->setDate(2024, 12, 24)a
+	->setTime(22, 10, 15, 100); // "2024-12-24 22:10:15.000100"
+
+// Get a datetime object's string representation with the `format` method.
+$date = new DateTime("2025-01-09 10:00:25");
+echo $date->format('d/m/Y'); // "09/01/2025"
+
+// Find difference between two datetime objects.
+$date1 = new DateTime("2025-01-09 10:00:25");
+$date2 = new DateTime("2025-01-09 11:00:25");
+var_dump($date1->diff($date2)); // object(DateInterval), which has properties like `y`-for year, `h`-for hour and so on.
+echo $date1->diff($date2)->h; // 1, means the difference = 1 hour
+echo $date1->diff($date2)->y; // 0, means the difference = 0 years
+
+// Another usefull method for modifying the datetime object is the `modify` method.
+// You can pass a string modifier, and PHP will try to parse it and change the datetime object based on the parsed string.
+$date = new DateTime("2025-01-09 10:00:25");
+$date->modify('tomorrow'); // "2025-01-10 00:00:00.000000", transform to tomorrow midnight.
+$date->modify('+1 day'); // "2025-01-10 10:00:25.000000", add one day to current datetime.
+$date->modify('-1 month');
+```
+---
+#### Composer
+```bash
+# Generate composer.json file
+composer init
+
+# Add directories for autoload
+-- open composer.json and add new properties
+"autoload": {
+	"psr-4": {
+		"Framework\\": "src/Framework", # namespace: path
+		"App\\": "src/App"              # namespace: path
+	}
+}
+-- Go to terminal and type
+composer dump-autoload # Composer will generate the vendor directory and special autoload files
+
+-- After that go to your bootstrap.php file and add
+require __DIR__ . '/../../vendor/autoload.php';
+```

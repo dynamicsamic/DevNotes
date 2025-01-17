@@ -59,6 +59,13 @@ curl http://example.com | json_pp
 curl -X POST -H "Content-Type: application/json" \
 -d '{"name": "toy", "category": "kids"}' http://example.com/products
 
+# POST with multiple headers and nested json.
+curl \
+	-X POST \
+	-H "Content-Type: application/json" -H "Authorization: Bearer ..." \
+	-d '{"id": 1, "version": 2, "params": {"period": {"date_from": "2024-12-20", "date_to": "2024-12-27"}, "categories": ["food", "drinks"], "method_name": "getSumByDay"}}' \
+	http://example.com/products
+
 # PUT
 curl -X PUT -H "Content-Type: application/json" \
 -d '{"name": "toy", "category": "adults"}' http://example.com/products
@@ -344,7 +351,7 @@ Birth:  2024-10-17 12:49:07.129337385 +0300
 
 # List all availavle sessions
 screen -ls
-
+	
 # Create a new session
 screen -S session_name
 
@@ -353,6 +360,12 @@ Ctrl+a+d
 
 # Reattach the session to your terminal
 screen -r session_name
+
+# If a screen terminal connection was lost before deattaching the session use d option to reattach it.
+screen -rd session_name
+
+# Kill a session
+screen -S session_name -X quit
 ```
 ---
 #### Get snapshot of current processes with `ps`

@@ -83,6 +83,13 @@ case $USER_ID in
 esac
 ```
 ---
+#### Creating ranges
+```bash
+for n in {1..100}; do
+	echo "Current number: ${n}"
+done
+```
+---
 #### The role of brackets, braces and parenthesis
 ```bash
 # Brackets [], [[]] are syntactic sugar for the Bash builtin `test` command.

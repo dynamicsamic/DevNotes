@@ -249,6 +249,61 @@ df.drop("new_col", axis=1)
 df.drop(columns=["new_col", "another_col"])
 df.drop(["new_col", "another_col"], axis="columns")
 df.drop(["new_col", "another_col"], axis=1)
+```
+---
+#### Duplicates and unique values
+```python
+# To see values and their respective counts in a column use `value_counts` method.
+df["col1"].value_counts()
+col1 
+Продавец-консультант 738 
+Кассир 396 
+Директор магазина 69
+...
+
+# Empty value are dropped from counting, but this you can include them.
+df["col1"].value_counts(dropna=False)
+col1 
+<NA> 69
+Продавец-консультант 738 
+Кассир 396 
+Директор магазина 69
+...
+
+# You can use `normalize` parameter to count the proprotion of each value counts among the total value counts.
+df["col1"].value_counts(normalize=True)
+col1
+Продавец-консультант 0.512144 
+Кассир 0.274809 
+Директор магазина 0.047883
+...
+
+# By default the result of counting is represented in descending order. To change this use.
+df["col1"].value_counts(ascending=True)
+
+# Create a plot out of value counts
+df["col1"].value_counts(ascending=True).plot(kind='barh')
+
+# Get the array of unique value in a column.
+df["col1"].unique()
+
+# You can convert this array into python list.
+df["col1"].unique().tolist()
+
+# To calculate the number of unique value use `nunique` method.
+df["col1"].nunique() # 3, number of distinct items in a column
+df.nunique() # number of distinct items per column
+col1 3
+col2 43
+col3 233
+col4 81
+...
+
+# To find rows with duplicated values use `duplicated` method.
+df['col1'].duplicated(keep='first' | 'last' | False)
+  - 'first', values closer to start are marked as non-duplicates
+  - 'last', value closer to end are marked as non-duplicates 
+  - False, all duplicate values are marked as duplicates
 
 # Drop duplicate rows with `.drop_duplicates()` method.
 # Drop rows if entire row is duplicate.
@@ -264,7 +319,15 @@ df.drop_duplicates(keep='last')
 
 # Drop both original and duplicate rows
 df.drop_duplicates(keep='last')
+
+# Numpy also has np.unique function. It receives an array and returns array with only unique values.
+# You can provide `return_counts=True` to add array of counts for each unique value.
+import numpy as np
+
+np.unique([1,2,3,2,3,2,3]) # array([1, 2, 3])
+np.unique([1,2,3,2,3,2,3], return_counts=True) # (array([1, 2, 3]), array([1, 3, 3]))
 ```
+---
 #### Increase csv file processing with `pyarrow`
 ```python
 import pandas as pd
@@ -555,7 +618,46 @@ df1.merge(df2, on='CommonColumn', how='outer')
 df1.merge(df2, on='CommonColumn', how='inner')
 
 # When you want to merge dataframes by columns that have different names, there may be multiple options.
-# First 
+# First option - is to rename one dataframes so that all of them have the same name.
+df1.rename(columns={"col1": "Column2"}).merge(df2, on="Column2", how="inner")
+
+# Or you can map one column to its counterpart
+df.merge(df2, left_on="Column1", rigth_on="Column2", how="inner")
+
+# Similar to SQL you can set multiple columns in the `on` clause
+df.merge(df2, on=["Column2", "Column3"], how="left")
+
+# Another option for joining dataframes is the `join` method.
+# This method suits more for index-based joins.
+# If you would like to perform join similar to previous you need to provide the arguments for `lsuffix` and `rsuffix` parameters. This way the resulting columns will be appended with suffixes.
+df1.join(df2, lsuffix='frame1', rsuffix='frame2', how='inner')
+
+# To perform index-based join set common column as index
+df1.set_index('Column1').join(df2.set_index('Column1'), how='left')
+# OR alternatively
+df1.join(df2.set_index('Column1'), how='left')
+
+# When merging dataframes the overlapping columns must be of the same type.
+# Sometimes this can happen for string-based and datetime-based columns.
+# To overcome this you should type cast value to the same type.
+df1.merge(df2.astype({"dateColumn":"datetime64[ns]"}), on="dateColumn", how="left")
+
+# It is more efficient to filter dataframes before their merging
+
+# Do not left empty values in columns that will be used for merging dataframes.
+# Since None (NaN) values are never equal to each other if you have them in both columns they all will be included in the joined dataframe.
+one = pd.DataFrame({'col_to_merge': [1, 2, None, None], 'one': 1})
+two = pd.DataFrame({'col_to_merge': [1, 2, None, None], 'two': 2})
+one.merge(two, on='col_to_merge', how='inner')
+|  |col_to_merge|one|two|
+|0 |1.0         |1  |2  |
+|1 |2.0         |1  |2  |
+|2 |NaN         |1  |2  |
+|3 |NaN         |1  |2  |
+|4 |NaN         |1  |2  |
+|5 |NaN         |1  |2  |
+
+# 
 ```
 ---
 #### Working with values

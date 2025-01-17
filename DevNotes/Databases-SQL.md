@@ -690,6 +690,10 @@ WHERE
 -- Views are also suitable for table creation and row insertion
 CREATE TABLE active_adults_public AS
 SELECT * FROM vw_active_adults_public;
+
+-- If you're not sure whether the view exists use REPLACE in combination with CREATE.
+CREATE OR REPLACE VIEW my_view AS ...;
+DROP VIEW my_view;
 ```
 ---
 #### Variables
