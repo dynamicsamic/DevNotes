@@ -465,6 +465,13 @@ cli.add_argument("-args", nargs=argparse.REMAINDER)
 
 # Now you are able to do this
 cli.parse_arguments(['value', '-a', '--d', 'optional']) # the -args option will receive ['-a', '--d', 'optional']
+
+# To add multiline formatting to description or usage use `RawTextHelpFormatter`
+from argparse import ArgumentParser, RawTextHelpFormatter
+cli = ArgumentParser(
+	description="Some long description", 
+	formatter_class=RawTextHelpFormatter
+)
 ```
 ---
 #### `uv` dependency tool
@@ -655,6 +662,126 @@ with open('file.json', 'w+', encoding='utf-8') as f:
 ---
 #### Working with xml files
 ```python
+import xml.etree.ElementTree as ET
+
+# Create a tree object
+tree = ET.parse('path/to/file.xml') # via reading from disc
+root_element = ET.fromstring(               # via parsing a string
+	'''<?xml version="1.0" encoding="utf-8" ?>
+	<orders date="2025-01-16 03:34:47">
+	<order>
+	<id>8-296-09658</id>
+	</order>
+	</orders>'''
+)
+root_element = ET.fromstringlist(          # Via parsing a list of string
+	[
+		'<?xml version="1.0" encoding="utf-8" ?>',
+		'<orders date="2025-01-16 03:34:47">',
+		'<order>',
+		'<id>8-296-09658</id>',
+		'</order>',
+		'</orders>'
+	]
+)
+
+# Every xml tree consists of elements that may contain subelements. 
+# Every element has 3 main properties.
+element.tag  # name of the element's tag (str)
+element.text  # text value of the element; for parent elements it is usually empty string or '\n' (str)
+element.attrib # value of a tag's attribute dict[str, str]; for <orders date="2025-01-16 03:34:47" .attrib would return {"date": "2025-01-16 03:34:47"}
+
+# Elements also have methods for retrieving data, adding and removing elements, and iterating the element tree.
+
+### Methods fo iteration ###
+element.find('tag_name') # Find the first sublement by its tag name.
+element.findall('tag_name') # Find all sublements by a tag name and store this subelements in a list.
+element.findtext('tag_name') # Return the value of an enclosed tag. Only returns value of the topmost tag. Won't work with nested subelements.
+element.iter() # Create an iterator for all elements and subelements 
+element.itertext() # Creates an iterator for text values of all elements and subelements
+element.iterfind('tag_name') # A generator version of the `.findall` method
+
+### Methods for working with attributes ###
+element.keys() # get all attributes' names
+element.get('attrib_name') # get the attribute's value
+element.set('update': True) # add or update an attribute
+element.values() # get tuples of all <attribute:value> pairs  
+
+### Methods for mutating xml tree ###
+# Append a subelement to the end of the list of subelements.
+element.append(ET.fromstring('<order><id>12323</id></order>'))
+
+# Insert an element at certain index
+element.insert(1, ET.fromstring('<order><id>12323</id></order>'))
+
+# Append multiple subelements
+element.append(
+	[
+		ET.fromstring('<order><id>12323</id></order>'),
+		ET.fromstring('<order><id>7224</id></order>')
+	]
+)
+
+# Remove a particular element. Works only for element objects, not tag names.
+elem_to_remove = element.find('order')
+element.remove(elem_to_remove)
+
+### Save or inspect xml files ###
+# Print tree object to stdout
+ET.dump(element)
+
+# Convert tree to byte-string
+ET.tostring(element)
+
+# Convert tree to list of byte-strings
+ET.tostringlist(element)
+
+# Write contents of a tree into file. Only works with trees not elements
+tree.write('path/to/file.xml')
+
+# You can use .tostring or .tostringlist with `open` function in binary mode to write contents of a tree object to a file.
+with open('my_file.xml', 'wb') as f:
+	f.writelines(ET.tostringlist(tree))
+
+### General workflow for xml files ###
+# Create a tree
+tree = ET.parse('path/to/file.xml')
+
+# Get the root element (node)
+orders = tree.getroot()
+
+# Iterating over top level subelements
+for order in orders:
+	order.findtext('id')
+
+# Iterating over nested subelements
+for order in orders:
+	for prop in order:
+		...
+
+# Iterate over particular subelements
+singles = 0
+for order in orders:
+	for products in order.findall('products'):
+		for product in products.findall('product'):
+			if product.findtext('quantity') == '1':
+				singles += 1
+
+# Use generators for memory-efficient iteration
+for order in orders.iterfind('order'):
+	for products in order.iterfind('products'):
+		for product in products.iterfind('product'):
+			if product.findtext('quantity') == '1':
+				singles += 1
+
+# Modify element values inplace
+for product in products.iterfind('product'):
+	qty = int(product.findtext('quantity'))
+	if qty == 0:
+		product.find('quantity').text = '1'
+	
+# Root - is the top element, that contains other elements.
+orders = tree.getroot()
 ```
 ---
 #### Pretty print contents of a `defaultdict`

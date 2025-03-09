@@ -75,6 +75,22 @@ curl -X DELETE http://example.com/products/234944
 
 # GET with authorization token
 curl -H "Authorization: Bearer dfk4k04881fj" https://example.com/products/2344
+
+# GET with Basic auth (login-password)
+curl -H "Authorization: Basic username:password" https://example.com/products/2344
+# OR more secure option to avoid exposing credentials in your shell
+curl -H "Authorization: Basic $(base64 <<< cat creds.txt)" https://...
+curl -H "Authorization: Basic $(cat creds.txt | base64)" https://...
+# OR authomatic base64 encoding by curl with --user option
+curl --user "$(cat creds.txt)" -v https://...
+# OR prefix domain name with `user:password@`
+curl http://usrname:password@example.com/products/234944
+# At last you can prompt curl to enter password interactively
+curl --user username https://..
+#\\ enter your password
+
+# Save data into a file
+curl --output outputFile.xml https://example.com
 ```
 ---
 #### `grep` utility

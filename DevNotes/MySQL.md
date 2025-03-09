@@ -278,7 +278,12 @@ SELECT @@session.sql_mode;
 ---
 #### Show active connections
 ```mysql
-SHOW processlist;
+SHOW FULL processlist;
+```
+---
+#### Kill a process
+```mysql
+KILL <process_id>;
 ```
 ---
 #### Show current session's warnings
@@ -363,6 +368,35 @@ SELECT EXTRACT(HOUR FROM '2024-01-01 20:00:59'); => 20
 
 -- String must be ISO formatted
 SELECT EXTRACT(HOUR FROM 'JAN, 01 2024 20:00:59'); => NULL
+```
+---
+#### Mutate a table values (update, delete) while querying it
+```sql
+-- MySQL does not allow to mutate a table simulataneously with querying itself.
+-- For example this query will produce `You can't specify target table for update in FROM clause` error.
+DELETE FROM table1
+	WHERE id IN (
+		SELECT t1.id
+		FROM table1 t1
+			INNER JOIN table2 t2 ON t1.id = t2.ref_id
+			WHERE t1.column1 = 'value1' AND
+				  t2.column3 = 'value3' AND
+				  t2.column8 = 'value8'	
+	)
+
+-- To overcome this you can wrap your subquery with another 'dummy' select subquery. Wrapping the subquery will cause MySQL server to implicitly create a temproray table, which will avoid the error, since technically you're not querying the same table you're modifying.
+-- So what you need is a little add on.
+DELETE FROM table1
+	WHERE id IN (
+		SELECT * FROM ( -- this was added
+			SELECT t1.id
+			FROM table1 t1
+				INNER JOIN table2 t2 ON t1.id = t2.ref_id
+				WHERE t1.column1 = 'value1' AND
+					  t2.column3 = 'value3' AND
+					  t2.column8 = 'value8'	
+		) AS subq      -- this was added
+	);
 ```
 ---
 

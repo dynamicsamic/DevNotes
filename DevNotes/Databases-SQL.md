@@ -1397,3 +1397,33 @@ UPDATE orders
 SET created_at = DATE_ADD(NOW(), INTERVAL 2 DAY)
 WHERE order_id % 2 <> 0;
 ```
+---
+#### PSQL (Postgres CLI)
+```sql
+--- Connect to database
+psql postgres://test_user:admin@localhost:5432/test_db
+-- OR more explicitly
+psql -h my_host.yandexcloud.net -p 6432 -U my_username -d my_database sslmode=verify-full
+-- OR super verbosely
+psql host=some_host.yandexcloud.net port=6432 sslmode=verify-full dbname=my_database user=my_username
+
+\l -- List all databases
+\l+ -- more verbose output
+
+\c <db_name> -- connect to another database
+\d -- list all tables in a database (including sequences) 
+\dt -- list tables only
+\dt+
+\d <table_name> -- Describe table
+\d+ <table_mame>
+
+-- Select database names
+SELECT datname FROM pg_database;
+
+\dn -- list available schemas
+\df -- list avaialable functions
+\dv -- list avaialable views
+\du -- list users
+\s -- show history
+\timing -- activate and deactivate timing 
+```

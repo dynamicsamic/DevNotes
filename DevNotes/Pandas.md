@@ -200,7 +200,7 @@ df.assign(
 	)
 )
 
-# Conditional assignment with np `.where` and `.mask` methods are a less rich.
+# Conditional assignment with pd `.where` and `.mask` methods are a less rich.
 df.assign(
 	bonus=lambda frame: frame["salary"].where(
 		frame["evaluation_mark"] > 6, # condition to evaluate
@@ -685,6 +685,10 @@ df["col1"].clip(10_000) # return 10_000 for every row value lower than 10_000
 
 # Return constants instead of lower and higher values
 df["col1"].clip(10_000, 50_000) # return 10_000 for every row value lower than 10_000 and 50_000 for every row value higher than 50_000
+
+# You can access string idexes using str property and bracket notation
+df['string_col'].str[0] # returns series object with first char only
+df['string_col'].str[:6] # returns series object with chars from first to 5-th
 ```
 ---
 #### Mathematical operations

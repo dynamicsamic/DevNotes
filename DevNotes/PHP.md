@@ -809,6 +809,14 @@ range('A', 'Z'); // ['A', 'B', 'C'..., 'Z']
 range(1, 10); // [1, 2, 3..., 10]
 range(1, 10, 3); // [1, 4, 7, 10]
 range(10, 1, -1); // [10, 9, 8..., 1]
+
+# Extract associated array into current scope variables with extract function.
+# Won't work with digit based keys.
+$arr = ['name'=>'John', 'age'=>23];
+extract($arr);
+echo "User name is {$name}, age {$age}"; // $name and $age derived from array keys
+# If theere already is a variable with such a name you can either overwrite it (which is default or skip wit EXTR_SKIP global constant) 
+extract($arr, EXTR_SKIP);
 ```
 ---
 #### Pass by reference
@@ -1061,6 +1069,9 @@ class Car
 
 echo Car::$maker; //=> 'Car Inc.'. Note that here we should use `$` operator
 Car::blink(); //=> "blink-blink"
+
+// Get the class name
+echo Car::class;
 
 // In most cases classes are initialized via the constructor method.
 // Methods can access the object via `this` keyword.
@@ -1792,3 +1803,17 @@ composer dump-autoload # Composer will generate the vendor directory and special
 -- After that go to your bootstrap.php file and add
 require __DIR__ . '/../../vendor/autoload.php';
 ```
+---
+#### Capturing string output with Output Buffer
+```php
+// Sometimes you need to capture output in order to use it later on.
+// You can use output buffer to capture and release output on demand.
+$count = performSomeCalculations($args); // create a variable to use in string
+ob_start(); // We created an output buffer that captures all output.
+echo "The result = {$count}\n";  // Output strings
+echo "Congratulations! My friend!";
+$contents = ob_get_contents(); // Everything that was captured dupmped into variable
+ob_end_clean(); // stop the buffer interception and clean the buffer.
+echo $contents; // The result = 1000\nCongratulations! My friend!
+```
+---

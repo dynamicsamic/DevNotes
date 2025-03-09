@@ -15,7 +15,7 @@ git commit -m 'message'
 git remote add origin 'https://github.com/<user_name>/<repo_name.git>'
 
 # Turn main branch is named `main`
-git brancn -M main
+git branch -M main
 
 # Push commited changes to remote repo
 git push -u origin main
@@ -212,7 +212,7 @@ ssh-add C:\Users\user\.ssh\github
 Host gitlab
     HostName gitlab.com
     PreferredAuthentications publickey # this may not be strictly neccessary
-    IdentityFile c:/Users/smira/.ssh/gitlab
+    IdentityFile C:/Users/smira/.ssh/gitlab
 
 Host github
     HostName github.com
@@ -233,5 +233,39 @@ sudo ssh -Tv git@github.com
 # Don't forget to set user name and email local to each project
 git config --local user.name = name
 git config --local user.email = email@email.com
+
+################## Update #####################
+# You can use Git-Bash utility for a more convinient workflow
+# Update the config file to add the private on-prem repository
+
+# Private GitLab instance
+Host hostname.gitlab.yandexcloud.net
+   PreferredAuthentications publickey
+   IdentityFile /c/Users/username/.ssh/gitlab_key
+
+# Add the ssh key named `gitlab_key` to your gitlab account.
+# Create new directory and `git init` from it.
+
+# Configure local name and email.
+git config --local user.name "name"
+git config --local user.email "email@email.com"
+
+# Bind local and remote repositories
+git remote add origin 'https://github.com/<user_name>/<repo_name.git>'
+
+# Make your main branch
+git branch -M main
+
+# Now every time you make push from this repository, Git-Bash will automatically resolve your commits to remote repo.
+git push -u origin main
+```
+---
+#### List git config
+```bash
+# global
+git config --global --list
+
+# local
+git config --global --list
 ```
 ---
