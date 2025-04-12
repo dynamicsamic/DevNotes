@@ -1,3 +1,4 @@
+# Chrome
 #### Duplicate current tab
 ```bash
 ctr+l (copy current url)
@@ -39,4 +40,9 @@ alt+enter (open a new tab with copied url)
 18. Give a meaningful name to your chrome instance.
 ```
 ---
-
+# Firefox
+>[!info]- Change how new tab behave on open
+>- Open new tab
+>- In the address bar type `about:config`. A configuration list will be loaded.
+>- In the search bar of the configuration list type `curr` to find setting for current tab.
+>- Set the `browser.tabs.insertAfterCurrent` to `true`

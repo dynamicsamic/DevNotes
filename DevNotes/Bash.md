@@ -113,3 +113,26 @@ if ! [[ $h =~ ^h[a-z]*$ ]] then ... ; fi ;
 if [[ $h =~ "[hello]" ]] then ... ; fi ;
 
 ```
+---
+#### Iterating over files
+```bash
+for file in $(ls path/to/dir/); do
+	echo $file
+done
+```
+---
+#### Conditional check with square brackets
+```bash
+# Check if token is a directory
+token="path/to/dir"
+if [[ -d $token ]]; then
+	echo "${token} is a directory"
+fi
+
+# Check if token is a file
+if [[ -f $token ]]; then
+	echo "${token} is a file"
+fi
+
+```
+---

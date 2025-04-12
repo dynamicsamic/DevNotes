@@ -231,8 +231,8 @@ sudo ssh -Tv git@gitlab.com
 sudo ssh -Tv git@github.com
 
 # Don't forget to set user name and email local to each project
-git config --local user.name = name
-git config --local user.email = email@email.com
+git config --local user.name=name
+git config --local user.email=email@email.com
 
 ################## Update #####################
 # You can use Git-Bash utility for a more convinient workflow

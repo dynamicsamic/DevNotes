@@ -1427,3 +1427,9 @@ SELECT datname FROM pg_database;
 \s -- show history
 \timing -- activate and deactivate timing 
 ```
+---
+#### Enable a pretty (extended) output in psql
+```bash
+# inside psql enter
+\x
+```

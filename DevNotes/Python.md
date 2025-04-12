@@ -13,7 +13,7 @@ sudo apt install python3.13
 #### Install `pip` on `Ubuntu`
 ```bash
 sudo apt update
-sudo apt install python3-pip
+sudo apt install python3.13-pip
 ```
 ---
 #### Install Python `venv` on `Ubuntu`
@@ -158,6 +158,38 @@ asyncio.run(main())
 # will complete their execution and return their results in a list.
 # In the result list we also can find an Exception object for the 
 # second coroutine.
+
+### Using locks in asyncio ###
+# Locks are useful when you want to limit the access to a resource that is being used by multiple coroutines. Such as writing to a file. For the lock to work properly it should be shared among courintes that access the resource.
+
+# This code sample simulates file access by multiple coroutines.
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
+def _sync_write_data(file_path: str, data: str):
+	with open(file_path, 'a') as f:
+		f.write(data)
+
+async def async_write_data(
+	file_path: str, 
+	data: str, 
+	executor: ThreadPoolExecutor, 
+	lock: asyncio.Lock,
+	wait: int,
+):
+	# Here the await lock.acquire() method called.
+	# Every courouting using this lock object will wait until lock released.
+	async with lock:
+		loop = asyncio.get_running_loop()
+		asyncio.sleep(wait)
+		await loop.run_in_executor(executor, _sync_write_data, file_path, data)
+
+async def main():
+	executor = ThreadPoolExecutor()
+	lock = asyncio.Lock()
+	await async_write_data('path/to/file', '\nNew line', executor, lock, 5)
+	await async_write_data('path/to/file', '\nAnother line', executor, lock, 2)
+	# Without using the lock, the second corountine would be executed before the first one, because of the first one waiting longer. Lock will synchronize the execution of these two coroutines.
 ```
 ----
 #### Generate hashes of given length
@@ -339,6 +371,8 @@ async def main():
 
 if __name__ == "__main__":
 	asyncio.run(main())
+
+# Since ProcessPoolExecutor creation has an overhead, the instance is typically craeted once and shared across different coroutines. 
 ```
 ---
 #### `maketrans` and `translate` string functions
@@ -656,10 +690,30 @@ with open('file.json', 'w+', encoding='utf-8') as f:
 	json.dump(items, f, ensure_ascii=False, indent=4) # Not `dumps` but `dump`
 ```
 ---
-#### Working with csv files
-```python
-```
----
+>[!summary]- Working with CSV files
+>The standard csv library provides two ways for reading a csv file - using the `reader` function and the `DictReader` class.
+>`reader` function is a more basic tool that is written in `C` , and `DictWriter` is a Python-based abstraction over this function with some convenient methods and attributes.
+>1. The `reader` function takes any iterable object (including file objects) and returns a generator-like `reader_` object that yields one row at a time when iterated over.
+>```python
+>with open("test_file.csv", newline="") as csv_file:
+    reader = csv.reader(csv_file)
+    for row in reader:
+        print(row) # each row is a list of values
+>									# ['Fruit', 'Quantity', 'Cost']
+>									# ['Strawberry', '1000', '$2.200']
+>									# ['Apple', '500', '$1.100']
+>```
+>Be sure to consume the reader while the file is open. Closing the file context will prevent the reader from further file parsing.
+>The `reader` function accepts several arguments for customizing the csv file reading process. B**e sure to provide keyword arguments, not positional ones.**
+>The most frequently used are:
+>- `delimiter: str = ","` - a character that separates columns from each other.
+>- `quotechar: str | None = '"'` - character that indicates borders of a value.
+>	E.G. if you use `,` as delimiter and your file contains values such as `$2,000`, the csv parser will split this value in two fields, first - `$2`, second - `000`. To prevent this surround such values with a character and pass this character as `quotechar` argument. For `quotechar = "` value `"$2,000"` will work, for `quotechar = |` value `|$2,000|` will work.
+> There are also multiple arguments for formatting quotes and escaping special characters, but they are used not quite often.
+> There is also the `lineterminator: str = "\r\n"` argument which is in fact hardcoded, so you can't the the lines are terminated in any way.
+> The `reader_` is a pretty basic object, there isn't much you can do with it except for iterating over it.
+> 
+
 #### Working with xml files
 ```python
 import xml.etree.ElementTree as ET
@@ -794,3 +848,46 @@ d["list"].append("values")
 pprint(dict(d))
 ```
 ---
+#### Format dates with f-strings
+```python
+from datetime import datetime as dt
+
+# Format datetime timestamp
+print(f"{dt.now():%Y%m%d%H%M%S%f}") # 20250325174350195095
+
+# Format with separators
+print(f"{dt.now():%Y-%m-%-d %H:%M:%S.%f}") # 2025-03-25 17:43:50.195095
+```
+---
+#### Type annotations
+```python
+# Annotate function that can accept arbitrary arguments (including none) of arbitrary type (Any).
+from typing import Callable
+Callable[..., ReturnType] # Here elipsis means none or many arguments of arbitrary type.
+# This annotation feets a broad variety of functions, it is loose.
+
+# Strictly annotate funcion's arguments' names and types.
+from typing import Protocol
+
+# Functions that follow the protocol below should implement parameter names and types as defined in the protocol definition.
+class MyFunctionProtocol(Protocol):
+	__init__(self, *vals: int, sep: str | None = None) -> list[str]:
+		...
+def valid_func(*vals: int, sep: str | None = None) -> list[str]: ...
+
+def invalid_func(*vals: int, delim: str | None = None) -> list[str]: ...
+```
+---
+#### Test note
+I would like to have the spell checking on my notes
+```python
+# As well as seemless code blocks
+def test_function(...):
+	pass
+```
+This is possible but It looks like it is not contained I guess
+
+---
+#### This is another item
+
+
