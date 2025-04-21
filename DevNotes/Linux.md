@@ -464,4 +464,62 @@ file file.txt
 dmesg -T | egrep -i 'killed process'
 ```
 ---
+#### Install a `.deb` package
+```bash
+dpkg -i <deb_package_name>
+```
+---
+#### Working with zip files
+```bash
+# Create a zip archive from multiple files
+zip my_new_archive_name.zip file1.txt file2.py
+
+# Craete a zip archive from a directory
+zip -r my_new_archive_name.zip my_dir
+
+# Update files in an existing archive from a directory
+zip -ru existing_archive.zip my_dir
+
+# Set the compression level with integer flags
+zip -ru1 existing_archive.zip my_dir # 1 - fast compression
+zip -ru9 existing_archive.zip my_dir # 9 - optimal compression
+
+# Show contents of a zip archive without extracting it
+unzip -l my_archive.zip
+unzip -v my_archive.zip # a more verbose option
+
+# Unzip files in current directory
+unzip my_archive.zip
+
+# Unzip files in a particular directory
+unzip my_archive.zip /path/to/directory
+
+# If you don't have the rights to access this directory
+sudo unzip my_archive.zip /path/to/directory
+
+# Do not print file names during unzipping (quiet mode)
+unzip -q my_archive.zip
+
+# Unzip a zip archive protected with password
+unzip -P my_password my_archive.zip
+
+# Exclude files from being extracted from a zip archive
+unzip my_archive.zip -x file1.txt file2.py
+
+# Exclude a directory
+unzip my_archive.zip -x "*.git/*"
+
+# Skip files extraction if such files already exist in a directory
+unzip -n my_archive.zip
+
+# Force overwrite existing files with extracted ones
+unzip -o my_archive.zip
+
+# Extract only those existing files whose modification time is greater than existing ones
+unzip -f my_arhive.zip
+
+# Extract all files and update existing files only if extracting files have greater modification time
+unzip -u my_archive.zip
+```
+---
 
