@@ -13,12 +13,12 @@ sudo apt install python3.13
 #### Install `pip` on `Ubuntu`
 ```bash
 sudo apt update
-sudo apt install python3.13-pip
+sudo apt install python3-pip
 ```
 ---
 #### Install Python `venv` on `Ubuntu`
 ```bash
-sudo apt install python3-venv
+sudo apt install python3.13-venv
 ```
 ---
 #### Create virtual environment with custom prompt in shell
@@ -510,6 +510,22 @@ cli = ArgumentParser(
 ---
 #### `uv` dependency tool
 ```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Init a project
+mkdir my_project
+uv init
+
+# Add a dependency
+uv add pandas
+
+# Add a dev dependency
+uv add --dev pytest
+
+# Install all pedendencies from pyproject.toml file
+uv sync
+
 # Update uv
 uv self update
 
