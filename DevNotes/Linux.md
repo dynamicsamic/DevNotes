@@ -459,4 +459,9 @@ file file.txt
 # Need to apt install them.
 ```
 ---
+#### Check message from killed process
+```bash
+dmesg -T | egrep -i 'killed process'
+```
+---
 

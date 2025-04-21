@@ -86,3 +86,10 @@ Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
     519     302   600300      63236              5308   0 mysqld
 ```
 ---
+#### Check Windows product (activation) key
+```cmd
+wmic path softwarelicensingservice get OA3xOriginalProductKey
+>>> OA3xOriginalProductKey
+		AJXXX-XXXXX-XXXXX-XXXXX-XXXXX
+```
+---
