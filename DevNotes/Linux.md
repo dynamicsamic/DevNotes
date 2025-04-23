@@ -466,10 +466,10 @@ dmesg -T | egrep -i 'killed process'
 ---
 #### Install a `.deb` package
 ```bash
-dpkg -i <deb_package_name>
+sudo dpkg -i <deb_package_name>
 ```
 ---
-#### Working with zip files
+#### Working with `zip` files
 ```bash
 # Create a zip archive from multiple files
 zip my_new_archive_name.zip file1.txt file2.py
@@ -522,4 +522,74 @@ unzip -f my_arhive.zip
 unzip -u my_archive.zip
 ```
 ---
+#### Delete directories with certain names and their contents recursively
+```bash
+# This will find and delete all directories named `__pycache__` starting from current directory.
+# the `-type d` ensures that only directories will be deleted
+rm -rf `find . -type d -name __pycache__` 
+```
+---
+#### `tar` utility for working with `tar`, `bzip` and `gzip` archives
+```bash
+# Tar is capable of creating and extracting files from archives.
+# Since tar works with files, directories, links and even devices the first argument that it expects is the file (object) type. Without this argument even the autocomplete would not work.
 
+# List files in a .tar archive.
+# f - stands for file, it is used almost every time.
+tar tf my_archive.tar
+# verbose output (add v letter)
+tar tvf my_archive.tar
+
+# This commands also works with other archive types. 
+tar tvf my_archive.gz
+tar tvf my_archive.tar.gz
+tar tvf my_archive.bz2
+tar tvf my_archive.tar.bz2
+
+# Create a new archive from a file
+# c - create an archive
+tar cvf new_archive.tar my_file.txt
+
+# Create a new archive from contents of a directory.
+# Recursive operation.
+tar cvf new_archive.tar my_dir/
+
+# To create a gz or tgz archive use `z` option
+tar czvf new_archive.tar.gz my_dir/
+tar czvf new_archive.gz my_dir/
+tar czvf new_archive.tgz my_dir/
+
+# To create a bz2 or tbz or tb2 archive use `j` option
+tar cjvf new_archive.tar.bz2 my_dir/
+tar cjvf new_archive.tar.tbz my_dir/
+tar cjvf new_archive.tar.tb2 my_dir/
+
+# Extract files from an archive in current directory.
+# The command is same for all types of archives. 
+tar xvf my_archive.tar
+tar xvf my_archive.tar.bz2
+tar xvf my_archive.tbz
+tar xvf my_archive.gz
+tar xvf my_archive.tgz
+
+# Specify a path to exctract to. Path should exist before extraction.
+tar xvf my_archive.tar -C path/to/dir
+
+# Extract a single file from archive
+# First list all files in an archive.
+# It will output all the files with their paths.
+tar tvf my_arhive.tar
+# Now copy the output path for your file and extract provide to extract option.
+tar xvf my_arhive.tar my_dir/hello.py # Suppose, that is the path provided by the previous command. All directories and files will be created automatically. 
+
+# Extract files that have certain pattern in their names.
+# If no files matched command returns with error.
+tar xvf my_archive.tar --wildcards '*.txt'
+tar zxvf my_archive.tar.gz --wildcards '*.txt'
+tar jxvf my_archive.tar.bz --wildcards '*.txt'
+
+# Add a file or directory to archive. Only works with .tar files.
+tar rvf existing_archive.tar my_file.txt
+tar rvf existing_archive.tar path/to/dir
+
+```
