@@ -39,9 +39,25 @@ yc managed-kubernetes cluster get-credentials <cluster-id-2> --external
 # Each cluster name will be stored as a context in ~/.kube/config file.
 # You can switch contexts however you wish.
 kubectl config use-context <context_name>
-
-# Get pod names assigned to a namespace
+```
+---
+#### Get pod names assigned to a namespace
+```bash
 kubectl get pods -n <namespace>
 ```
 ---
+#### Connect to a pod
+```bash
+# First get the pod name from the command below.
+kubectl exec -itn <namespace> <pod_name> -- bash
+```
+---
+#### Copy a file to and from a pod
+```bash
+# Copy to local machine
+kubectl cp <namespace>/<pod-name>:/path/to/file.txt /local/file-path.txt
 
+# Copy to pod
+kubectl cp /local/file-path.txt <namespace>/<pod-name>:/path/to/file.txt 
+```
+---

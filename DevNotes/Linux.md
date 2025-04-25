@@ -522,7 +522,7 @@ unzip -f my_arhive.zip
 unzip -u my_archive.zip
 ```
 ---
-#### Delete directories with certain names and their contents recursively
+#### Delete directories (recursively with contents) that have certain names
 ```bash
 # This will find and delete all directories named `__pycache__` starting from current directory.
 # the `-type d` ensures that only directories will be deleted

@@ -11,10 +11,7 @@ sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyring
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 # Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 
 # To install the latest version, run:
@@ -44,9 +41,19 @@ sudo docker run -it --name my-mongo --network my-network -p 27017:27017 mongo
 # Download, build, add to network and run Redis server in a named container.
 sudo docker run --name my-redis --network my-network -d -p 6379:6379 redis
 
-# Download, build, add to network and run Redis server in a named container.
+# Download, build and add to the network a named container with Postgres server.
 # Add environment variables (-e) and a volume to persist data.
-sudo docker run --name my-postgres -p 5432:5432 -v postgres-data:/var/lib/postgresql/data -e POSTGRES_USER=<username> -e POSTGRES_PASSWORD=<password> -e POSTGRES_DB=<db_name> -d postgres:16
+# You can run it with `sudo docker exec -it my-postgres bash`
+sudo docker run --name my-postgres --network my-network -p 5432:5432 -v postgres-data:/var/lib/postgresql/data -e POSTGRES_USER=<username> -e POSTGRES_PASSWORD=<password> -e POSTGRES_DB=<db_name> -d postgres:16
+
+# Download, build and add to the network a named container with Postgres server.
+# Add environment variables (-e) and a volume to persist data.
+sudo docker run --name mysql-test --network my-network -p 3306:3306 -e MYSQL_ROOT_PASSWORD=<my-password> -d mysql
+
+# Now run it with
+sudo docker exec -it mysql-test mysql -u root --password=<my-password>
+# Or enter the container with 
+sudo docker exec -it mysql-test bash
 ```
 ---
 #### Sample `Dockerfile` for a python project
@@ -112,3 +119,14 @@ sudo docker push <username>/<reporitory_name>:<tag>
 sudo docker image prune
 ```
 ---
+#### Copy files from container to host and vice-versa
+```bash
+# Works even if the container is not running
+# To host
+sudo docker cp <my-container>:/path/to/file.csv /host/path
+
+# To container
+sudo docker cp /host/path/file.csv <my-container>:/path/to/source
+```
+---
+

@@ -765,36 +765,7 @@ SELECT  COALESCE(SUM(col1), 0) -- If SUM(col1) is NULL, returns 0.
 SELECT IFNULL(SUM(col1), 1) -- if SUM(col1) is NULL, returns 1.
 ```
 ---
-#### String functions in MySQL
-```sql
--- `concat(*args)`- concatenates provided arguments
-concat(col1, ' ', concat(col2, '...'), '!');
 
--- 'left(s: str, take_chars: int)' - takes n chars from string's left side.
-left('Hello world!', 5); -- => Hello
-
--- `right(s: str, take_chars: int)` - takes n chars from string's right side.
-right('Hello world!', 6); -- => world!
-
--- `length(s: str)` - returns the number of chars in a string.
-length('Hello'); -- => 5
-
--- `substr(s: str, start_from: int, take_chars: int)` - takes n chars starting 
--- from specifed char. The first char has index 1, not 0.
-substr('Hello world!', 1, 2); -- => He
-substr('Hello world!', 1); -- => Hello world!
-
--- instr(s1: str, s2: str): int - return 1 if s2 is a substring of or equalt to
--- s1, return 0 otherwise.
-instr('Hello world', 'Hello'); -- => 1
-instr('Hello world', 'Helloh'); -- => 0
-
--- lpad(val: str|int, final_len:int, 'fill_val:str'):str - prefix a string or
--- number with fill value to reach the final length.
-lpad(22, 4, '0'); -- => 0022
-lpad('A', 10, 'B'); --=> BBBBBBBBBA
--- rpad does the same but from the end of the mutated value
-```
 ---
 #### `CASE` statement syntax and use cases
 ```sql
