@@ -593,3 +593,25 @@ tar rvf existing_archive.tar my_file.txt
 tar rvf existing_archive.tar path/to/dir
 
 ```
+---
+#### Check RAM usage
+```bash
+free -h
+		total        used        free      shared        buf/cache    available
+Mem:    15Gi         1,7Gi        12Gi        34Mi       1,4Gi        13Gi
+Swap:   2,0Gi        0B           2,0Gi
+
+# or
+vmstat -s | grep memory
+     15736796 K total memory
+      2416616 K used memory
+      2351592 K active memory
+       783360 K inactive memory
+     11900484 K free memory
+        77456 K buffer memory
+
+# or 
+cat /proc/meminfo | grep MemTotal
+MemTotal:       15736796 kB  
+```
+---
