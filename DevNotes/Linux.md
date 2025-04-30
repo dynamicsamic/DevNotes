@@ -1,6 +1,11 @@
 ---
 Created: 2024-07-17T08:26
 ---
+#### List files with ordering
+```bash
+ls -alt --sort=time # also possible size, extension, version, width
+```
+---
 #### Check current ports
 ```bash
 # Check all occupied ports.
@@ -90,7 +95,12 @@ curl --user username https://..
 #\\ enter your password
 
 # Save data into a file
+curl -o outputFile.xml https://example.com
+# or long option
 curl --output outputFile.xml https://example.com
+
+# Also works for downloading from multiple sources
+curl https://example.com/source1 https://example.com/source2 -o file1.txt -o file2.txt
 ```
 ---
 #### `grep` utility
@@ -613,5 +623,10 @@ vmstat -s | grep memory
 # or 
 cat /proc/meminfo | grep MemTotal
 MemTotal:       15736796 kB  
+```
+---
+#### Convert a `.tsv` file into `.csv`
+```bash
+tr '\t' ',' < original.tsv > transformed.csv
 ```
 ---

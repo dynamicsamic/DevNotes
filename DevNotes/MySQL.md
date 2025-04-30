@@ -39,6 +39,46 @@ mysql <database_name> -h <database_host> -u <database_user> -p -e "SELECT * FROM
 mysql <database_name> -h <database_host> -u <database_user> -p -e "SELECT * FROM my_table LIMIT 100" > output.csv
 ```
 ---
+#### Dump query results in  a `.tsv` file
+Very useful, when:
+- the database and the server that makes query aren't on the same host (container, pod), like on the cloud;
+- MySQL server doesn't have file access privileges;
+- no other query tools are available for you, only MySQL installed. 
+```bash
+mysql <database_name> -h <database_host> -u <database_user> --default-character-set=utf8mb4 --password -e "SELECT * FROM my_table LIMIT 10" > /path/to/output-file.tsv
+
+# Now you can convert this file into pandas dataframe with
+df = pd.read_csv(file_name, sep='\t')
+
+# Or convert it into csv using Linux `tr` utility
+tr '\t' ',' < original.tsv > transformed.csv
+```
+---
+#### Store query results in a `.csv` file
+- If you have file privileges you can use MySQL builtin mechanisms to store a query in a `.csv` file.
+```sql
+SELECT order_id,product_name,qty
+FROM orders
+WHERE foo = 'bar'
+INTO OUTFILE '/var/lib/mysql-files/orders.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+```
+---
+#### Prettify query output in CLI
+```mysql
+-- Finish your query with `\G` instead of `;`
+SELECT * FROM my_table\G
+
+-- To enable a scrolling mode
+pager less -S
+-- Here run your query
+SELECT ...
+-- Turn of the scrolling mode
+nopager
+```
+---
 #### Change user password
 ```mysql
 mysql> ALTER USER 'user_name'@'localhost' IDENTIFIED BY 'NEW_USER_PASSWORD';

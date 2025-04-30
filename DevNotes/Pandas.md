@@ -1172,3 +1172,12 @@ dates['date'] + pd.Timedelta(days=2)
 dates['date'] - pd.Timedelta(days=2)
 ```
 ---
+#### Read a .tsv file
+```python
+import pandas as pd
+
+df = pd.read_csv('file_name.tsv', sep='\t') # provide a tab separator for read csv function.
+# or
+df = pd.read_table('file_name.tsv')
+```
+---

@@ -35,8 +35,16 @@ yc managed-kubernetes cluster get-credentials <cluster-id> --external
 # If you have multiple clusters you can run this command separately for each cluster.
 yc managed-kubernetes cluster get-credentials <cluster-id-1> --external
 yc managed-kubernetes cluster get-credentials <cluster-id-2> --external
-
 # Each cluster name will be stored as a context in ~/.kube/config file.
+```
+#### Working with contexts
+```bash
+# List all contexts
+kubectl config get-contexts
+
+# List all contexts stored in a custom file
+kubectl config get-contexts --kubeconfig "path/to/file/.config"
+
 # You can switch contexts however you wish.
 kubectl config use-context <context_name>
 ```
