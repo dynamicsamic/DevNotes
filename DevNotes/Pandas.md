@@ -413,6 +413,9 @@ df[df["status"].str.contains("cancel")]
 # The `not contains` option.
 df[~df["status"].str.contains("wait")]
 
+# Contains any of values
+df[df["status"].str.contains("cancel|new|delivered")] # separate values byklkk pipe
+
 # Check if values start with substring
 df[df["status"].str.startswith("ca")]
 

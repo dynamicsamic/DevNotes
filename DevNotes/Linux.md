@@ -630,3 +630,53 @@ MemTotal:       15736796 kB
 tr '\t' ',' < original.tsv > transformed.csv
 ```
 ---
+#### Copy data to clipboard with `xclip`
+```bash
+# First install xclip with apt
+sudo apt update
+sudo apt install xclip
+
+# Copy the contents of a file.
+# `-sel clip` means the system clipboard is selected. The contents of a file are copied to the system clipboard.
+xclip -sel clip my_file.py
+
+# Copy a part of a file
+tail -n 30 my_file.py | xclip -sel clip
+head -n 20 my_file.py | xclip -sel clip
+
+# Send system's clipboard contents to stdout
+xclip -sel clip -o
+
+# Send clipboards contents to a file.
+xclip -sel clip -o > my_file.py
+
+# Useful for copying a remote file's contents
+ssh user@host "cat /cred/file.txt" | xclip -sel clip
+```
+---
+#### List all OS users 
+```bash
+# User information is stored in the /etc/passwd file.
+# Every entry in this file contains piecies of data delimited by semicolon `:` so the structure is similar to this:
+colord:x:120:124:colord colour management daemon,,,:/var/lib/colord:/usr/sbin/nologin
+# where
+	# - colord is the name of a user (a real user or a program)
+	# - x - encrypted password that is stored in /etc/shadow
+	# - 120 - UID (user ID)
+	# - 120 - GID (group ID)
+	# - colord colour management daemon,,, - the GECOS field - user (program) information. May contain name, email, address and so on. Commas mean empty values
+	# - /var/lib/colord - home directory for a user (program)
+	# - /usr/sbin/nologin - a default shell (for programs it's nologin, for user it may be /bin/bash or something similar)
+
+# Now to extract the user names we can use the `cut` tool.
+# cut removes sections from each line of a file.
+# -d means delimiter, line will be split in fields by the delimiter
+# -f1 means we take only the first field. The field must be specified
+cut -d: -f1 /etc/passwd
+root
+daemon
+bin
+sys
+sync
+...
+```
