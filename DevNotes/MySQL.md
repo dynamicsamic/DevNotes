@@ -79,6 +79,18 @@ SELECT ...
 nopager
 ```
 ---
+#### Create a database dump
+```bash
+mysqldump -u <db_user> -h <db_host> -p <db_name> <table1> <table2> <table3> --default-character-set=utf8mb4 --no-tablespaces > mysql_dump.sql 
+# --no-tablespaces - without this option dump will fail because of absent PROCESS priviliges
+# To exclude multiple tables you can pass --ignore-table=Table1 --ignore-table=Table2 --ignore-table=Table3
+```
+---
+#### Restore database from a dump
+```bash
+mysql <db_name> -u <db_user> -h <db_host> -p < mysql-dump.sql
+```
+---
 #### Change user password
 ```mysql
 mysql> ALTER USER 'user_name'@'localhost' IDENTIFIED BY 'NEW_USER_PASSWORD';

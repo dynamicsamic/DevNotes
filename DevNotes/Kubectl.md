@@ -69,3 +69,8 @@ kubectl cp <namespace>/<pod-name>:/path/to/file.txt /local/file-path.txt
 kubectl cp /local/file-path.txt <namespace>/<pod-name>:/path/to/file.txt 
 ```
 ---
+#### Force kill a pod
+```bash
+kubectl delete pod <pod_name> -n <namespace> --grace-period=0 --force 
+```
+---

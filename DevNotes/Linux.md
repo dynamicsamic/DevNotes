@@ -680,3 +680,18 @@ sys
 sync
 ...
 ```
+#### Using the `cut` utility
+```bash
+# `cut` cats ouputs the file or stream contents and removes specific selections from every line. For example
+cut -d: -f1 /etc/passwd
+# will split every row in `/etc/passwd` by `:` char and output only the first column
+
+# cut can be combined in a pipeline with other utilities. For example
+kubectl get pods -n cln | cut -d ' ' -f1 | tail -n 1 | xclip -sel clip 
+# will get pods from a namespace, split this info by space and return the first columns, grab the last row and copy it to system clipboard
+
+# It is also possbile to choose multiple fields
+cut -d: -f 1-3 /etc/passwd # If we want fields from 1 to 3
+cut -d: -f 1,3 /etc/passwd # If we want only fields 1 and 3
+```
+---
