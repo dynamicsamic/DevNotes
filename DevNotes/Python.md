@@ -904,6 +904,42 @@ def test_function(...):
 This is possible but It looks like it is not contained I guess
 
 ---
-#### This is another item
+#### Working with `requests` library
+```python
+import requests
+
+url = "https://example.com"
+
+# A GET request with query parameters.
+params = {
+    "limit": 10,
+    "offset": 5,
+    "date_from": "2025-03-01",
+    "date_to": "2025-03-02",
+}
+resp = requests.get(url, params=params)
+# So the actual url will be equal to `https://example.com/?limit=10&offset=5&date_from=2025-03-01&date_to=2025-03-02`
+# All characters will be url encoded.
+
+# A POST request with payload
+payload = {"product_id": 1123, "product_qty": 22, "tax": 0.2}
+resp = requests.post(url, data=payload)
+# Payload may also be in the form of list of tuples or contain sequences
+payload = [("product_id", 1123), ("product_qty", 22)]
+payload = {"product_id": [1123, 356, 221]}
+
+# A POST request with payload and automatic application/json header added.
+# Simply replace `data` parameter with the `json`
+resp = requests.post(url, json=payload)
+
+# Basic authentication (with login and password)
+# A more verbose option.
+from requests.auth import HTTPBasicAuth
+
+resp = requests.post(url, auth=HTTPBasicAuth("user", "password"))
+
+# A shorter version.
+resp = requests.post(url, auth=("user", "password"))
+```
 
 
