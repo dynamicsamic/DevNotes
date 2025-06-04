@@ -695,3 +695,9 @@ cut -d: -f 1-3 /etc/passwd # If we want fields from 1 to 3
 cut -d: -f 1,3 /etc/passwd # If we want only fields 1 and 3
 ```
 ---
+#### Bulk rename files
+```bash
+# Change file extensions from .tar to .tsv
+file-rename -- 's/\.tar$/\.tsv/' *.tar
+# You can put the -n option after the command to make a dry run
+```

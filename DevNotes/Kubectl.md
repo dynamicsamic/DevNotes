@@ -67,10 +67,24 @@ kubectl cp <namespace>/<pod-name>:/path/to/file.txt /local/file-path.txt
 
 # Copy to pod
 kubectl cp /local/file-path.txt <namespace>/<pod-name>:/path/to/file.txt 
+
+# Copy multiple files to local machine
+mkdir temp_dir && mv *.sql temp_dir # first create a directory on a pod and store target files there
+kubectl cp "<namespace>/<pod-name>:/path/to/temp_dir/." local_dir/
+
+# Copy multiple files to pod
+tar -zcvf - *.sql | kubectl exec <pod-name> -n <namespace> --stdin -- tar -zxvf - -C /path/to/pod/dir 
+# OR
+find /var/tmp/data/ | xargs -i{} kubectl cp {} namespace/pod:/tmp/
 ```
 ---
 #### Force kill a pod
 ```bash
 kubectl delete pod <pod_name> -n <namespace> --grace-period=0 --force 
+```
+---
+#### Get pods with most memory usage
+```bash
+kubectl top pods --all-namespaces --sort-by=memory | head -n 10
 ```
 ---
