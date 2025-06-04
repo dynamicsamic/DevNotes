@@ -52,6 +52,9 @@ df = pd.read_csv(file_name, sep='\t')
 
 # Or convert it into csv using Linux `tr` utility
 tr '\t' ',' < original.tsv > transformed.csv
+
+# You can provide not sql query from a file by redirecting its contents to  Mysql
+mysql <database_name> -h <database_host> -u <database_user> --default-character-set=utf8mb4 -p < sql_query.sql > /path/to/output-file.tsv
 ```
 ---
 #### Store query results in a `.csv` file

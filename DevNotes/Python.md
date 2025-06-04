@@ -811,7 +811,7 @@ tree.write('path/to/file.xml')
 
 # You can use .tostring or .tostringlist with `open` function in binary mode to write contents of a tree object to a file.
 with open('my_file.xml', 'wb') as f:
-	f.writelines(ET.tostringlist(tree))
+	f.writelines(ET.tostringlist(tree, encoding='utf-8'))
 
 ### General workflow for xml files ###
 # Create a tree
